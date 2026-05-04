@@ -4,12 +4,17 @@ Flask Web App for Meal Planner
 Displays recipes with HelloFresh-style cards, print-friendly
 """
 
-from flask import Flask, render_template, abort, redirect, url_for, request, jsonify, session
+from pathlib import Path
+import os
+
+# Load .env file before anything else
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+from flask import Flask, render_template, abort, redirect, url_for, request, jsonify, session, send_from_directory
 from werkzeug.middleware.proxy_fix import ProxyFix
 import sqlite3
-from pathlib import Path
 import httpx
-import os
 import sys
 import logging
 import secrets
@@ -40,8 +45,8 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-pro
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Database path (configurable for deployment)
-DB_PATH = Path(os.getenv("DATABASE_PATH", Path(__file__).parent.parent / "database" / "recipes.db"))
+# Database path - always use relative path to avoid issues with spaces
+DB_PATH = Path(__file__).parent.parent / "database" / "recipes.db"
 
 # .NET API base URL (configure via environment variable for deployment)
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:5098/api")
@@ -906,6 +911,32 @@ def batch_tag_recipes():
         tagger.close_db()
 
 
+@app.route('/admin/recipe-quality')
+@login_required
+@admin_required
+def recipe_quality():
+    """Admin page showing recipe validation status"""
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent / 'scraper'))
+    from validate_recipes import RecipeValidator
+
+    validator = RecipeValidator(str(Path(__file__).parent.parent / 'database' / 'recipes.db'))
+    validator.connect_db()
+
+    try:
+        summary = validator.get_summary()
+        all_results = validator.validate_all(include_valid=False)
+        broken_recipes = [r for r in all_results if not r.is_valid]
+        needs_review_recipes = [r for r in all_results if r.is_valid and r.warnings]
+
+        return render_template('admin_recipe_quality.html',
+                             summary=summary,
+                             broken_recipes=broken_recipes,
+                             needs_review_recipes=needs_review_recipes)
+    finally:
+        validator.close_db()
+
+
 @app.route('/admin/import-recipe')
 @login_required
 def import_recipe_page():
@@ -1313,6 +1344,35 @@ def revoke_invite(invite_id):
     conn.close()
 
     return redirect(url_for('admin_invites'))
+
+
+# ============================================================================
+# SPA FALLBACK (React frontend)
+# ============================================================================
+
+# Path to React build output (set via FRONTEND_DIST or default to ../frontend/dist)
+FRONTEND_DIST = Path(os.getenv("FRONTEND_DIST", Path(__file__).parent.parent / "frontend" / "dist"))
+
+
+@app.route('/app/', defaults={'path': ''})
+@app.route('/app/<path:path>')
+def serve_spa(path):
+    """
+    Serve React SPA for /app/* routes.
+
+    In development, Vite dev server handles the React app directly.
+    In production, Flask serves the built React app from frontend/dist.
+    """
+    if not FRONTEND_DIST.exists():
+        return "React app not built. Run 'npm run build' in frontend/", 404
+
+    # Serve static assets (JS, CSS, fonts, images)
+    static_file = FRONTEND_DIST / path
+    if path and static_file.exists() and static_file.is_file():
+        return send_from_directory(FRONTEND_DIST, path)
+
+    # For all other routes, serve index.html (client-side routing)
+    return send_from_directory(FRONTEND_DIST, 'index.html')
 
 
 if __name__ == '__main__':

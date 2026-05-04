@@ -21,6 +21,7 @@ from normalize import (
     normalize_instructions_list,
     normalize_quantity,
 )
+from validate_recipes import RecipeValidator
 
 # Optional progress bar support
 try:
@@ -161,6 +162,10 @@ class RecipeImporter:
                 logger.info(f"✓ Successfully imported: {recipe_data['name']}")
                 logger.info(f"  - {len(ingredients)} ingredients")
                 logger.info(f"  - {len(instruction_steps)} steps")
+
+                # Validate the imported recipe
+                self._validate_imported_recipe(recipe_id)
+
                 return True
             else:
                 logger.error(f"Failed to save recipe to database")
@@ -177,6 +182,26 @@ class RecipeImporter:
             return result if result else default
         except (NotImplementedError, AttributeError, Exception):
             return default
+
+    def _validate_imported_recipe(self, recipe_id: int):
+        """Validate imported recipe and show warnings"""
+        try:
+            validator = RecipeValidator(self.db_path)
+            validator.db_conn = self.db_conn  # Reuse connection
+            result = validator.validate_recipe(recipe_id)
+
+            if not result.is_valid:
+                logger.warning(f"⚠️  Recipe has validation errors (score: {result.score}/100):")
+                for error in result.errors:
+                    logger.warning(f"     🔴 {error.field}: {error.message}")
+            elif result.warnings:
+                logger.info(f"📋 Recipe quality score: {result.score}/100")
+                for warning in result.warnings:
+                    logger.info(f"     🟡 {warning.field}: {warning.message}")
+            else:
+                logger.info(f"✅ Recipe passed validation (score: {result.score}/100)")
+        except Exception as e:
+            logger.debug(f"Validation check skipped: {e}")
 
     def _extract_nutrient(self, nutrients: dict, key: str) -> Optional[int]:
         """Extract numeric value from nutrient dict"""

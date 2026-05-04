@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Recipe Quality - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>📊 Recipe Quality Dashboard</h1>
+    <p class="subtitle">Monitor recipe completeness and data quality</p>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ summary.total_recipes }}</div>
+            <div class="stat-label">Total Recipes</div>
+        </div>
+
+        <div class="stat-card stat-success">
+            <div class="stat-number">{{ summary.complete }}</div>
+            <div class="stat-label">Complete ({{ summary.complete_percentage }}%)</div>
+        </div>
+
+        <div class="stat-card stat-warning">
+            <div class="stat-number">{{ summary.with_warnings }}</div>
+            <div class="stat-label">With Warnings</div>
+        </div>
+
+        <div class="stat-card {% if summary.broken > 0 %}stat-error{% else %}stat-success{% endif %}">
+            <div class="stat-number">{{ summary.broken }}</div>
+            <div class="stat-label">Broken ({{ summary.broken_percentage }}%)</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-number">{{ summary.average_score }}</div>
+            <div class="stat-label">Avg Score /100</div>
+        </div>
+    </div>
+
+    {% if broken_recipes %}
+    <section class="broken-recipes">
+        <h2>🔴 Broken Recipes ({{ broken_recipes|length }})</h2>
+        <p>These recipes are missing required data and cannot be used in meal plans.</p>
+
+        <div class="recipe-quality-list">
+            {% for recipe in broken_recipes %}
+            <div class="recipe-quality-card broken">
+                <div class="recipe-quality-header">
+                    <a href="/recipe/{{ recipe.recipe_id }}" class="recipe-name">{{ recipe.recipe_name }}</a>
+                    <span class="quality-score">Score: {{ recipe.score }}/100</span>
+                </div>
+                <div class="recipe-quality-issues">
+                    {% for error in recipe.errors %}
+                    <div class="issue error">
+                        <span class="issue-icon">🔴</span>
+                        <span class="issue-field">{{ error.field }}:</span>
+                        <span class="issue-message">{{ error.message }}</span>
+                    </div>
+                    {% endfor %}
+                    {% for warning in recipe.warnings %}
+                    <div class="issue warning">
+                        <span class="issue-icon">🟡</span>
+                        <span class="issue-field">{{ warning.field }}:</span>
+                        <span class="issue-message">{{ warning.message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <section class="no-broken">
+        <h2>✅ All Recipes Valid</h2>
+        <p>No broken recipes found. All recipes have the required data.</p>
+    </section>
+    {% endif %}
+
+    {% if needs_review_recipes %}
+    <section class="needs-review-recipes">
+        <h2>🟡 Needs Review ({{ needs_review_recipes|length }})</h2>
+        <p>These recipes are usable but have missing optional data.</p>
+
+        <details>
+            <summary>Show recipes needing review</summary>
+            <div class="recipe-quality-list">
+                {% for recipe in needs_review_recipes %}
+                <div class="recipe-quality-card warning">
+                    <div class="recipe-quality-header">
+                        <a href="/recipe/{{ recipe.recipe_id }}" class="recipe-name">{{ recipe.recipe_name }}</a>
+                        <span class="quality-score">Score: {{ recipe.score }}/100</span>
+                    </div>
+                    <div class="recipe-quality-issues">
+                        {% for warning in recipe.warnings %}
+                        <div class="issue warning">
+                            <span class="issue-icon">🟡</span>
+                            <span class="issue-field">{{ warning.field }}:</span>
+                            <span class="issue-message">{{ warning.message }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </details>
+    </section>
+    {% endif %}
+
+    <div class="admin-actions">
+        <a href="/admin/ai-tagging" class="btn-secondary">🤖 AI Tagging</a>
+        <a href="/admin/import-recipe" class="btn-secondary">📥 Import Recipe</a>
+    </div>
+</div>
+
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-card.stat-success {
+    border-left: 4px solid #91C13E;
+}
+
+.stat-card.stat-warning {
+    border-left: 4px solid #f0ad4e;
+}
+
+.stat-card.stat-error {
+    border-left: 4px solid #d9534f;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.broken-recipes {
+    margin-top: 40px;
+}
+
+.broken-recipes h2 {
+    color: #d9534f;
+    margin-bottom: 10px;
+}
+
+.recipe-quality-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.recipe-quality-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.recipe-quality-card.broken {
+    border-left: 4px solid #d9534f;
+}
+
+.recipe-quality-card.warning {
+    border-left: 4px solid #f0ad4e;
+}
+
+.needs-review-recipes {
+    margin-top: 40px;
+}
+
+.needs-review-recipes h2 {
+    color: #8a6d3b;
+    margin-bottom: 10px;
+}
+
+details summary {
+    cursor: pointer;
+    padding: 10px 15px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+details summary:hover {
+    background: #e5e5e5;
+}
+
+.recipe-quality-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.recipe-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+}
+
+.recipe-name:hover {
+    color: #FF6B35;
+}
+
+.quality-score {
+    background: #f5f5f5;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.recipe-quality-issues {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.issue {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.issue.error {
+    color: #d9534f;
+}
+
+.issue.warning {
+    color: #8a6d3b;
+}
+
+.issue-field {
+    font-weight: 600;
+}
+
+.admin-actions {
+    margin-top: 40px;
+    display: flex;
+    gap: 15px;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #e5e5e5;
+}
+
+.no-broken {
+    background: #f0fff4;
+    border: 1px solid #91C13E;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.no-broken h2 {
+    color: #91C13E;
+    margin-bottom: 10px;
+}
+</style>
+{% endblock %}

@@ -310,13 +310,16 @@ def logout():
 
 @auth_bp.route('/me')
 def me():
-    """Return current user info as JSON (API endpoint)."""
+    """Return current user info as JSON (API endpoint for React SPA)."""
     if current_user.is_authenticated:
+        from app import ADMIN_EMAIL
         return jsonify({
-            'authenticated': True,
-            'id': current_user.id,
-            'email': current_user.email,
-            'name': current_user.name,
-            'avatar_url': current_user.avatar_url
+            'user': {
+                'id': current_user.id,
+                'email': current_user.email,
+                'name': current_user.name,
+                'avatar_url': current_user.avatar_url,
+                'is_admin': current_user.email == ADMIN_EMAIL
+            }
         })
-    return jsonify({'authenticated': False})
+    return jsonify({'user': None}), 401
