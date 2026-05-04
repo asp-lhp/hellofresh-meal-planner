@@ -12,7 +12,16 @@
       "WebFetch(domain:developer.kroger.com)",
       "WebFetch(domain:www.postman.com)",
       "Bash(curl -s http://localhost:5001)",
-      "mcp__linear__list_teams"
+      "mcp__linear__list_teams",
+      "Bash(awk '{if \\($1 ~ /^\\(git|gh|docker|kubectl|dotnet|npm|yarn|bun|cargo|go\\)$/\\) print $1, $2; else print $1}')",
+      "Bash(flyctl auth *)",
+      "Bash(fly auth *)",
+      "Bash(fly apps *)",
+      "Bash(fly volumes *)",
+      "Bash(pkill *)",
+      "Bash(fly machines *)",
+      "Bash(curl -s https://meal-planner-api-asp.fly.dev/api/recipes)",
+      "Bash(python3 *)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__jira-mcp-prod__get_attachments_from_jira_for",
+      "mcp__jira-mcp-prod__search_issues_in_jira_for",
+      "mcp__jira-mcp-prod__read_issue_from_jira_using",
+      "mcp__jira-mcp-prod__get_issue_field_metadata",
+      "mcp__jira-mcp-prod__get_comments_from_jira_for",
+      "mcp__jira-mcp-prod__get_issue_changelog_from_jira_for",
+      "mcp__jira-mcp-prod__get_versions_in_jira_for",
+      "mcp__snowflake-mcp-prod__snowflake_describe_object",
+      "mcp__snowflake-mcp-prod__snowflake_get_objects",
+      "mcp__gdrive-mcp-prod__lookup_google_doc_for",
+      "mcp__gdrive-mcp-prod__lookup_google_drive_for",
+      "mcp__gdrive-mcp-prod__search_gmail_for",
+      "mcp__gdrive-mcp-prod__get_google_calendar_details_using",
+      "mcp__slack-mcp-prod__get_conversations_history",
+      "mcp__slack-mcp-prod__search_messages",
+      "mcp__slack-mcp-prod__get_channel_id",
+      "mcp__publish-mcp__read-published-url",
+      "mcp__linear__list_issues",
+      "mcp__linear__list_projects",
+      "mcp__linear__list_teams",
+      "mcp__linear__get_issue",
+      "mcp__linear__get_project",
+      "mcp__linear__list_comments",
+      "mcp__fastlane-mcp__catalog_searchEntities",
+      "mcp__fastlane-mcp__catalog_getEntityByRef",
+      "mcp__fastlane-mcp__catalog_getEntitiesByKind",
+      "Bash(iconv *)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet restore *)",
+      "Bash(pip install *)",
+      "Bash(pip list *)",
+      "Bash(brew list *)",
+      "Bash(brew info *)"
+    ]
+  }
+}

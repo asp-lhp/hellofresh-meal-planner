@@ -15,6 +15,13 @@ from typing import Optional, Dict, List
 from recipe_scrapers import scrape_html
 import requests
 
+# Local normalization module
+from normalize import (
+    parse_ingredient,
+    normalize_instructions_list,
+    normalize_quantity,
+)
+
 # Optional progress bar support
 try:
     from tqdm import tqdm
@@ -117,16 +124,26 @@ class RecipeImporter:
                 recipe_data['carbs'] = None
                 recipe_data['fat'] = None
 
-            # Extract ingredients
-            ingredients = self._safe_call(scraper.ingredients, default=[])
+            # Extract and parse ingredients
+            raw_ingredients = self._safe_call(scraper.ingredients, default=[])
+            ingredients = []
+            for raw in raw_ingredients:
+                quantity, name, normalized = parse_ingredient(raw)
+                ingredients.append({
+                    'raw': raw,
+                    'quantity': quantity,
+                    'name': name,
+                    'normalized_name': normalized,
+                })
 
-            # Extract instructions
+            # Extract instructions and filter garbage
             instructions = self._safe_call(scraper.instructions, default="")
-            # Split instructions into steps if they're in one string
             if isinstance(instructions, str):
                 instruction_steps = [s.strip() for s in instructions.split('\n') if s.strip()]
             else:
                 instruction_steps = instructions if isinstance(instructions, list) else []
+            # Remove garbage steps like "step 1", "step 2"
+            instruction_steps = normalize_instructions_list(instruction_steps)
 
             # Extract tags/category
             category = self._safe_call(scraper.category)
@@ -216,12 +233,12 @@ class RecipeImporter:
                 recipe_data['region']
             ))
 
-            # Insert ingredients
-            for ingredient in ingredients:
+            # Insert ingredients with parsed quantity and normalized name
+            for ing in ingredients:
                 cursor.execute("""
-                    INSERT INTO ingredients (recipe_id, name)
-                    VALUES (?, ?)
-                """, (recipe_id, ingredient))
+                    INSERT INTO ingredients (recipe_id, name, quantity, normalized_name)
+                    VALUES (?, ?, ?, ?)
+                """, (recipe_id, ing['name'], ing['quantity'], ing['normalized_name']))
 
             # Insert instructions
             for idx, instruction in enumerate(instructions, 1):

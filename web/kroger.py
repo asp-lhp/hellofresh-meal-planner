@@ -346,6 +346,78 @@ def add_to_cart():
         return jsonify({'error': 'Connection error'}), 500
 
 
+@kroger_bp.route('/cart/add-recipe/<int:recipe_id>', methods=['POST'])
+@login_required
+def add_recipe_to_cart(recipe_id):
+    """Search Kroger for each ingredient in a recipe and add them all to the cart."""
+    token = get_valid_kroger_token(current_user.id)
+    if not token:
+        return jsonify({'error': 'Not connected to Kroger. Go to Settings to connect your account.'}), 401
+
+    conn = get_db()
+    ingredients = conn.execute(
+        "SELECT name FROM ingredients WHERE recipe_id = ?", (recipe_id,)
+    ).fetchall()
+    conn.close()
+
+    if not ingredients:
+        return jsonify({'error': 'No ingredients found for this recipe'}), 404
+
+    cart_items = []
+    not_found = []
+
+    with httpx.Client(timeout=10.0) as client:
+        for ingredient in ingredients:
+            try:
+                search_resp = client.get(
+                    f"{KROGER_API_BASE}/products",
+                    headers={"Authorization": f"Bearer {token}"},
+                    params={'filter.term': ingredient['name'], 'filter.limit': 1}
+                )
+                if search_resp.status_code == 200:
+                    data = search_resp.json().get('data', [])
+                    if data and data[0].get('upc'):
+                        cart_items.append({"upc": data[0]['upc'], "quantity": 1})
+                    else:
+                        not_found.append(ingredient['name'])
+                else:
+                    not_found.append(ingredient['name'])
+            except Exception:
+                not_found.append(ingredient['name'])
+
+    if not cart_items:
+        return jsonify({'error': 'Could not find any ingredients in Kroger catalog'}), 400
+
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            cart_resp = client.put(
+                f"{KROGER_API_BASE}/cart/add",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json"
+                },
+                json={"items": cart_items}
+            )
+
+        if cart_resp.status_code in [200, 201, 204]:
+            msg = f"Added {len(cart_items)} item(s) to your Kroger cart"
+            if not_found:
+                preview = ', '.join(not_found[:3])
+                suffix = '…' if len(not_found) > 3 else ''
+                msg += f" ({len(not_found)} not found: {preview}{suffix})"
+            return jsonify({'success': True, 'message': msg, 'not_found': not_found})
+        elif cart_resp.status_code == 401:
+            clear_kroger_tokens(current_user.id)
+            return jsonify({'error': 'Kroger authorization expired. Please reconnect in Settings.'}), 401
+        else:
+            current_app.logger.error(f"Kroger cart add failed: {cart_resp.status_code} - {cart_resp.text}")
+            return jsonify({'error': 'Failed to add items to Kroger cart'}), 500
+
+    except Exception as e:
+        current_app.logger.error(f"Kroger cart error: {e}")
+        return jsonify({'error': 'Connection error contacting Kroger'}), 500
+
+
 @kroger_bp.route('/products/search')
 @login_required
 def search_products():

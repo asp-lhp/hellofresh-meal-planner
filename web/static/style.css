@@ -500,6 +500,103 @@ h1 {
     background: #000;
 }
 
+/* ==========================================================================
+   Recipe Action Bar — Add to Cart / Add to Meal Plan
+   ========================================================================== */
+
+.recipe-action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Right-align print and delete within the flex row */
+.recipe-action-bar .print-button,
+.recipe-action-bar .delete-button {
+    float: none;
+    margin-bottom: 0;
+    margin-right: 0;
+}
+
+.add-to-cart-button {
+    padding: 0.75rem 1.5rem;
+    background: #1565C0;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.add-to-cart-button:hover:not(:disabled) {
+    background: #0D47A1;
+}
+
+.add-to-cart-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.add-to-meal-plan-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.meal-plan-select {
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    background: #fff;
+    cursor: pointer;
+    max-width: 220px;
+}
+
+.add-to-plan-button {
+    padding: 0.75rem 1.25rem;
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.add-to-plan-button:hover:not(:disabled) {
+    background: #7DAD2E;
+}
+
+.add-to-plan-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.action-feedback {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    transition: opacity 0.3s;
+}
+
+.feedback-success {
+    color: #2E7D32;
+    background: #E8F5E9;
+}
+
+.feedback-error {
+    color: #C62828;
+    background: #FFEBEE;
+}
+
 /* Footer */
 footer {
     margin-top: 4rem;

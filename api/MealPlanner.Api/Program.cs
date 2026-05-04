@@ -27,7 +27,9 @@ builder.Services.AddCors(options =>
 });
 
 // Configure Entity Framework Core with SQLite
-var dbPath = Path.Combine(builder.Environment.ContentRootPath, "..", "..", "database", "recipes.db");
+// Use DATABASE_PATH env var in production, relative path in development
+var dbPath = Environment.GetEnvironmentVariable("DATABASE_PATH")
+    ?? Path.Combine(builder.Environment.ContentRootPath, "..", "..", "database", "recipes.db");
 builder.Services.AddDbContext<MealPlannerContext>(options =>
     options.UseSqlite($"Data Source={dbPath}"));
 
@@ -46,6 +48,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
+
+// Health check endpoint for Fly.io
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 // ============================================================
 // API Endpoints - Meal Planner

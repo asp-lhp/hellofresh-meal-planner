@@ -4,13 +4,43 @@
 
 {% block content %}
 <div class="recipe-card-full">
-    <!-- Print button - hidden on print -->
-    <button onclick="window.print()" class="print-button no-print">🖨️ Print Recipe</button>
+    <!-- Action bar - hidden on print -->
+    <div class="recipe-action-bar no-print">
+        <!-- Print -->
+        <button onclick="window.print()" class="print-button">🖨️ Print</button>
 
-    <!-- Delete button - hidden on print -->
-    <form method="POST" action="/recipe/{{ recipe.id }}/mark-delete" style="display: inline;" onsubmit="return confirm('Mark this recipe for deletion? It will be hidden from the site.');">
-        <button type="submit" class="delete-button no-print">🗑️ Delete Recipe</button>
-    </form>
+        <!-- Delete -->
+        <form method="POST" action="/recipe/{{ recipe.id }}/mark-delete" style="display: inline;" onsubmit="return confirm('Mark this recipe for deletion? It will be hidden from the site.');">
+            <button type="submit" class="delete-button">🗑️ Delete</button>
+        </form>
+
+        {% if current_user.is_authenticated %}
+        <!-- Add to Kroger Cart -->
+        <button id="btn-add-to-cart" class="add-to-cart-button" onclick="addToCart()">
+            <span class="btn-text">🛒 Add to Cart</span>
+        </button>
+
+        <!-- Add to Meal Plan -->
+        <div class="add-to-meal-plan-inline">
+            {% if meal_plans %}
+            <select id="meal-plan-select" class="meal-plan-select">
+                <option value="">— pick a meal plan —</option>
+                {% for mp in meal_plans %}
+                <option value="{{ mp.id }}">{{ mp.name }}</option>
+                {% endfor %}
+            </select>
+            <button id="btn-add-to-plan" class="add-to-plan-button" onclick="addToMealPlan()">
+                <span class="btn-text">📅 Add to Plan</span>
+            </button>
+            {% else %}
+            <a href="/meal-plans/create" class="add-to-plan-button">📅 Create Meal Plan</a>
+            {% endif %}
+        </div>
+
+        <!-- Feedback message -->
+        <span id="action-feedback" class="action-feedback"></span>
+        {% endif %}
+    </div>
 
     <!-- Recipe Header -->
     <div class="recipe-header">
@@ -166,4 +196,75 @@
         <a href="/" class="btn">← Back to Recipes</a>
     </div>
 </div>
+
+{% if current_user.is_authenticated %}
+<script>
+function showFeedback(msg, isError) {
+    const el = document.getElementById('action-feedback');
+    el.textContent = msg;
+    el.className = 'action-feedback ' + (isError ? 'feedback-error' : 'feedback-success');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => { el.textContent = ''; el.className = 'action-feedback'; }, 4000);
+}
+
+function setLoading(btn, loading) {
+    if (loading) {
+        btn.classList.add('btn-loading');
+        btn.disabled = true;
+    } else {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+    }
+}
+
+async function addToCart() {
+    const btn = document.getElementById('btn-add-to-cart');
+    setLoading(btn, true);
+    try {
+        const resp = await fetch('/kroger/cart/add-recipe/{{ recipe.id }}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        const data = await resp.json();
+        if (data.success) {
+            showFeedback('✅ ' + data.message, false);
+        } else {
+            showFeedback('❌ ' + (data.error || 'Failed to add to cart'), true);
+        }
+    } catch (e) {
+        showFeedback('❌ Network error — please try again', true);
+    } finally {
+        setLoading(btn, false);
+    }
+}
+
+async function addToMealPlan() {
+    const select = document.getElementById('meal-plan-select');
+    const btn = document.getElementById('btn-add-to-plan');
+    const mealPlanId = select ? select.value : null;
+    if (!mealPlanId) {
+        showFeedback('⚠️ Please choose a meal plan first', true);
+        return;
+    }
+    setLoading(btn, true);
+    try {
+        const resp = await fetch('/recipe/{{ recipe.id }}/add-to-meal-plan', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({meal_plan_id: parseInt(mealPlanId)})
+        });
+        const data = await resp.json();
+        if (data.success) {
+            showFeedback('✅ ' + data.message, false);
+        } else {
+            showFeedback('❌ ' + (data.error || 'Failed to add to meal plan'), true);
+        }
+    } catch (e) {
+        showFeedback('❌ Network error — please try again', true);
+    } finally {
+        setLoading(btn, false);
+    }
+}
+</script>
+{% endif %}
 {% endblock %}
