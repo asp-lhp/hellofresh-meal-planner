@@ -1,0 +1,409 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container settings-page">
+    <h1>Settings</h1>
+
+    {% if success_message %}
+    <div class="alert alert-success">
+        {{ success_message }}
+    </div>
+    {% endif %}
+
+    {% if error_message %}
+    <div class="alert alert-error">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/settings" class="settings-form">
+        <!-- Profile Section -->
+        <section class="settings-section">
+            <h2>Profile</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="text" value="{{ current_user.email }}" disabled class="form-control disabled">
+                <small>Managed by Google</small>
+            </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" value="{{ current_user.name }}" disabled class="form-control disabled">
+                <small>Managed by Google</small>
+            </div>
+        </section>
+
+        <!-- Meal Planning Section -->
+        <section class="settings-section">
+            <h2>Meal Planning</h2>
+            <div class="form-group">
+                <label for="default_servings">Default Servings</label>
+                <select name="default_servings" id="default_servings" class="form-control">
+                    {% for i in range(1, 11) %}
+                    <option value="{{ i }}" {% if preferences.default_servings == i %}selected{% endif %}>{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </section>
+
+        <!-- Grocery Store Section -->
+        <section class="settings-section">
+            <h2>Grocery Store Integration</h2>
+            <div class="form-group">
+                <label for="preferred_store">Preferred Store</label>
+                <select name="preferred_store" id="preferred_store" class="form-control" onchange="toggleStoreSettings()">
+                    <option value="" {% if not preferences.preferred_store %}selected{% endif %}>None</option>
+                    <option value="kroger" {% if preferences.preferred_store == 'kroger' %}selected{% endif %}>Kroger</option>
+                    <option value="walmart" {% if preferences.preferred_store == 'walmart' %}selected{% endif %}>Walmart</option>
+                </select>
+            </div>
+
+            <!-- Kroger Settings -->
+            <div id="kroger-settings" class="store-settings {% if preferences.preferred_store != 'kroger' %}hidden{% endif %}">
+                <h3>Kroger API Configuration</h3>
+                <p class="help-text">
+                    Get your API credentials from the <a href="https://developer.kroger.com/" target="_blank">Kroger Developer Portal</a>.
+                </p>
+                <div class="redirect-uri-info">
+                    <strong>Redirect URI:</strong>
+                    <code id="redirect-uri">{{ request.url_root }}kroger/callback</code>
+                    <button type="button" class="btn-copy" onclick="copyRedirectUri()">Copy</button>
+                    <small>Add this to your Kroger app's OAuth settings</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="kroger_client_id">Client ID</label>
+                    <input type="text" name="kroger_client_id" id="kroger_client_id"
+                           value="{{ preferences.kroger_client_id or '' }}"
+                           class="form-control" placeholder="Enter your Kroger Client ID">
+                </div>
+
+                <div class="form-group">
+                    <label for="kroger_client_secret">Client Secret</label>
+                    <input type="password" name="kroger_client_secret" id="kroger_client_secret"
+                           value="{{ preferences.kroger_client_secret or '' }}"
+                           class="form-control" placeholder="Enter your Kroger Client Secret">
+                    <button type="button" class="btn-toggle-password" onclick="togglePassword('kroger_client_secret')">Show</button>
+                </div>
+
+                <div class="connection-status">
+                    {% if preferences.kroger_access_token %}
+                    <span class="status-connected">✓ Connected to Kroger</span>
+                    <form action="/kroger/disconnect" method="POST" style="display: inline; margin-left: 10px;">
+                        <button type="submit" class="btn-disconnect">Disconnect</button>
+                    </form>
+                    {% elif preferences.kroger_client_id and preferences.kroger_client_secret %}
+                    <span class="status-configured">Credentials saved - ready to connect</span>
+                    <a href="/kroger/authorize" class="btn-connect">Connect to Kroger</a>
+                    {% else %}
+                    <span class="status-not-configured">Enter credentials and save to connect</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Walmart Settings -->
+            <div id="walmart-settings" class="store-settings {% if preferences.preferred_store != 'walmart' %}hidden{% endif %}">
+                <h3>Walmart API Configuration</h3>
+                <p class="help-text">
+                    Walmart integration coming soon.
+                </p>
+
+                <div class="form-group">
+                    <label for="walmart_api_key">API Key</label>
+                    <input type="password" name="walmart_api_key" id="walmart_api_key"
+                           value="{{ preferences.walmart_api_key or '' }}"
+                           class="form-control" placeholder="Enter your Walmart API Key">
+                    <button type="button" class="btn-toggle-password" onclick="togglePassword('walmart_api_key')">Show</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="/" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.settings-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.settings-page h1 {
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.settings-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.settings-section h2 {
+    font-size: 1.2rem;
+    color: #91C13E;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.settings-section h3 {
+    font-size: 1rem;
+    color: #666;
+    margin: 15px 0 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: #91C13E;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(145, 193, 62, 0.2);
+}
+
+.form-control.disabled {
+    background: #f5f5f5;
+    color: #888;
+}
+
+.form-group small {
+    display: block;
+    color: #888;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+.help-text {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.help-text a {
+    color: #91C13E;
+}
+
+.store-settings {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.store-settings.hidden {
+    display: none;
+}
+
+.btn-toggle-password {
+    margin-top: 5px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    background: #eee;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.connection-status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.status-connected {
+    color: #2e7d32;
+    background: #e8f5e9;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.status-configured {
+    color: #f57c00;
+    background: #fff3e0;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.status-not-configured {
+    color: #757575;
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.btn-connect {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #0073e6;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.btn-connect:hover {
+    background: #005bb5;
+}
+
+.btn-disconnect {
+    padding: 6px 12px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.btn-disconnect:hover {
+    background: #c82333;
+}
+
+.redirect-uri-info {
+    background: #e8f4fd;
+    border: 1px solid #b8daff;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.redirect-uri-info code {
+    display: inline-block;
+    background: #fff;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    margin: 0 8px;
+    word-break: break-all;
+}
+
+.redirect-uri-info small {
+    display: block;
+    margin-top: 8px;
+    color: #666;
+}
+
+.btn-copy {
+    padding: 4px 10px;
+    background: #91C13E;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.btn-copy:hover {
+    background: #7da832;
+}
+
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    border: none;
+}
+
+.btn-primary {
+    background: #91C13E;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #7da832;
+}
+
+.btn-secondary {
+    background: #eee;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #ddd;
+}
+
+.alert {
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.alert-error {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+</style>
+
+<script>
+function toggleStoreSettings() {
+    const store = document.getElementById('preferred_store').value;
+    document.getElementById('kroger-settings').classList.toggle('hidden', store !== 'kroger');
+    document.getElementById('walmart-settings').classList.toggle('hidden', store !== 'walmart');
+}
+
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const btn = field.nextElementSibling;
+    if (field.type === 'password') {
+        field.type = 'text';
+        btn.textContent = 'Hide';
+    } else {
+        field.type = 'password';
+        btn.textContent = 'Show';
+    }
+}
+
+function copyRedirectUri() {
+    const uri = document.getElementById('redirect-uri').textContent;
+    navigator.clipboard.writeText(uri).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+    });
+}
+</script>
+{% endblock %}

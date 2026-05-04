@@ -1,0 +1,66 @@
+{
+  "monday": {
+    "name": "Mozzarella-Cauli Bites & Smashed Potatoes",
+    "ingredients": [
+      { "name": "Cauliflower", "amount": "1 head (about 2 lbs)", "prep": "Cut into florets" },
+      { "name": "Baby potatoes", "amount": "1 lb", "prep": "Halve if large" },
+      { "name": "Mozzarella cheese", "amount": "8 oz fresh mozzarella", "prep": "Cut into small cubes" },
+      { "name": "Haloumi cheese", "amount": "7 oz package", "prep": "Slice into rounds" },
+      { "name": "Greek yogurt", "amount": "1/2 cup", "prep": "Plain, full-fat" },
+      { "name": "Fresh dill", "amount": "1/4 cup chopped", "prep": "Fresh or 2 tbsp dried" },
+      { "name": "Garlic", "amount": "2 cloves", "prep": "Minced" },
+      { "name": "Lemon", "amount": "1", "prep": "Juice and zest" },
+      { "name": "Mixed salad greens", "amount": "4 cups", "prep": "Baby spinach, arugula" },
+      { "name": "Cherry tomatoes", "amount": "1 cup", "prep": "Halved" },
+      { "name": "Cucumber", "amount": "1", "prep": "Sliced" },
+      { "name": "Panko breadcrumbs", "amount": "1/2 cup", "prep": "" },
+      { "name": "Eggs", "amount": "2", "prep": "Beaten" },
+      { "name": "Olive oil", "amount": "1/4 cup", "prep": "" },
+      { "name": "Hot sauce", "amount": "To taste", "prep": "Optional" },
+      { "name": "Salt & pepper", "amount": "To taste", "prep": "" }
+    ]
+  },
+  "tuesday": {
+    "name": "Cheesy Beef Taco Mac Pasta",
+    "ingredients": [
+      { "name": "Ground beef", "amount": "1 lb (16 oz)", "prep": "80/20 or 85/15" },
+      { "name": "Cavatappi pasta", "amount": "8 oz", "prep": "Or elbow macaroni" },
+      { "name": "Sweet bell pepper", "amount": "1 large", "prep": "Diced (any color)" },
+      { "name": "Roma tomato", "amount": "1 large", "prep": "Diced" },
+      { "name": "Cheddar cheese", "amount": "1 cup shredded", "prep": "Sharp cheddar" },
+      { "name": "Sour cream", "amount": "1/2 cup", "prep": "" },
+      { "name": "Tomato sauce", "amount": "1 cup (8 oz)", "prep": "Plain tomato sauce" },
+      { "name": "Taco seasoning", "amount": "2-3 tbsp", "prep": "Or use enchilada spice" },
+      { "name": "Garlic", "amount": "2 cloves", "prep": "Minced" },
+      { "name": "Green onions", "amount": "2-3", "prep": "Sliced" },
+      { "name": "Hot sauce", "amount": "To taste", "prep": "Optional" },
+      { "name": "Olive oil", "amount": "1 tbsp", "prep": "" },
+      { "name": "Salt & pepper", "amount": "To taste", "prep": "" }
+    ]
+  },
+  "wednesday": {
+    "name": "Swedish-Inspired Burgers",
+    "ingredients": [
+      { "name": "Ground beef", "amount": "1 lb (16 oz)", "prep": "80/20 or 85/15" },
+      { "name": "Breadcrumbs", "amount": "1/4 cup", "prep": "Panko or regular" },
+      { "name": "Egg", "amount": "1", "prep": "Beaten" },
+      { "name": "Onion", "amount": "1 small", "prep": "Half diced, half sliced" },
+      { "name": "Garlic", "amount": "2 cloves", "prep": "Minced" },
+      { "name": "Mushrooms", "amount": "8 oz", "prep": "Sliced (cremini or button)" },
+      { "name": "Heavy cream", "amount": "1/2 cup", "prep": "Or half & half" },
+      { "name": "Beef broth", "amount": "1/2 cup", "prep": "" },
+      { "name": "Dijon mustard", "amount": "1 tbsp", "prep": "" },
+      { "name": "Worcestershire sauce", "amount": "1 tbsp", "prep": "" },
+      { "name": "Baby potatoes", "amount": "1 lb", "prep": "Sliced into coins" },
+      { "name": "Sour cream", "amount": "1/3 cup", "prep": "For dilly dip" },
+      { "name": "Fresh dill", "amount": "1/4 cup chopped", "prep": "Or 2 tbsp dried" },
+      { "name": "Lemon juice", "amount": "1 tbsp", "prep": "" },
+      { "name": "Butter", "amount": "2 tbsp", "prep": "" },
+      { "name": "Olive oil", "amount": "2 tbsp", "prep": "" },
+      { "name": "Burger buns", "amount": "4", "prep": "Optional" },
+      { "name": "Salt & pepper", "amount": "To taste", "prep": "" },
+      { "name": "Paprika", "amount": "1 tsp", "prep": "" },
+      { "name": "Allspice", "amount": "1/4 tsp", "prep": "Or nutmeg" }
+    ]
+  }
+}

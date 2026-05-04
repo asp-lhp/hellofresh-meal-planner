@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Prep Guide - Week of March 24</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #764ba2;
+            margin-bottom: 10px;
+            font-size: 36px;
+        }
+
+        h2 {
+            color: #667eea;
+            margin: 30px 0 15px;
+            font-size: 24px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin: 20px 0 10px;
+            font-size: 20px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .prep-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .prep-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .prep-task {
+            display: flex;
+            align-items: start;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .task-details {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .task-time {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .container-label {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 4px;
+        }
+
+        .container-label strong {
+            color: #ff6f00;
+        }
+
+        .meal-schedule {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .meal-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .meal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .meal-day {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .meal-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .meal-containers {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            border-radius: 6px;
+        }
+
+        .tips {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .tips h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .tips ul {
+            margin: 10px 0 0 20px;
+        }
+
+        .tips li {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .completed-task {
+            opacity: 0.6;
+        }
+
+        .completed-task .task-title {
+            text-decoration: line-through;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e5e5;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥘 Meal Prep Guide</h1>
+        <p class="subtitle">Monday-Friday • March 24-28, 2026 • Sunday Prep Session</p>
+
+        <div class="prep-overview">
+            <div class="stat-card">
+                <div class="stat-value" id="total-tasks">24</div>
+                <div class="stat-label">Prep Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">~90</div>
+                <div class="stat-label">Minutes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Dinners M-F</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completed-count">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print Guide</button>
+            <button class="btn btn-secondary" onclick="resetProgress()">↺ Reset Progress</button>
+            <button class="btn btn-secondary" onclick="window.location.href='walmart-shopping-list.html'">🛒 Shopping List</button>
+            <button class="btn btn-secondary" onclick="window.location.href='quick-cook-guide.html'">⚡ Quick Cook Guide</button>
+            <button class="btn btn-secondary" onclick="window.location.href='weeknight-recipes.html'">📖 Full Recipes</button>
+        </div>
+
+        <div class="tips">
+            <h3>💡 Meal Prep Success Tips</h3>
+            <ul>
+                <li><strong>Prep in order:</strong> Start with washing/drying, then chopping, then sauces/marinades</li>
+                <li><strong>Use glass containers:</strong> They're better for reheating and keeping food fresh</li>
+                <li><strong>Label everything:</strong> Use masking tape and a marker with the day and meal name</li>
+                <li><strong>Don't prep rice yet:</strong> Cook rice fresh or use a rice cooker on the day you need it</li>
+                <li><strong>Keep proteins frozen:</strong> Thaw salmon TUESDAY night for Wednesday dinner</li>
+                <li><strong>Mon-Tue & Thu meals:</strong> No prepped containers - cook fresh using recipe cards</li>
+                <li><strong>Wed & Fri meals:</strong> Grab prepped containers and just cook rice + protein!</li>
+            </ul>
+        </div>
+
+        <h2>📋 Prep Tasks by Category</h2>
+
+        <!-- WASHING & DRYING -->
+        <div class="prep-section">
+            <h3>🚿 Step 1: Wash & Dry (15 min)</h3>
+            <div id="washing-tasks"></div>
+        </div>
+
+        <!-- CHOPPING & SLICING -->
+        <div class="prep-section">
+            <h3>🔪 Step 2: Chop & Slice (30 min)</h3>
+            <div id="chopping-tasks"></div>
+        </div>
+
+        <!-- SAUCES & MARINADES -->
+        <div class="prep-section">
+            <h3>🥫 Step 3: Sauces & Mix (15 min)</h3>
+            <div id="sauce-tasks"></div>
+        </div>
+
+        <!-- PORTIONING -->
+        <div class="prep-section">
+            <h3>📦 Step 4: Portion & Store (20 min)</h3>
+            <div id="portion-tasks"></div>
+        </div>
+
+        <!-- FINAL ORGANIZATION -->
+        <div class="prep-section">
+            <h3>🏷️ Step 5: Label & Organize (10 min)</h3>
+            <div id="label-tasks"></div>
+        </div>
+
+        <h2>📅 Your Fridge Organization</h2>
+        <p style="margin-bottom: 20px; color: #666;">After prep, your fridge will have these containers ready to grab:</p>
+        <div class="meal-schedule" id="meal-schedule"></div>
+
+    </div>
+
+    <script>
+        const prepTasks = {
+            washing: [
+                { title: "Wash all vegetables", details: "Radishes, mini cucumbers, scallions, ginger, carrots (or buy pre-washed coleslaw mix)", time: "5 min", container: "" },
+                { title: "Dry vegetables thoroughly", details: "Pat scallions dry with paper towels or salad spinner", time: "3 min", container: "" },
+                { title: "Wash limes", details: "Rinse 4 limes, dry them", time: "2 min", container: "" }
+            ],
+            chopping: [
+                { title: "Slice radishes thin", details: "Slice 8-10 radishes into thin rounds for poke bowls", time: "5 min", container: "Label: Radishes (Thu & Fri)" },
+                { title: "Slice mini cucumbers", details: "Slice 4 Persian cucumbers into thin rounds", time: "5 min", container: "Label: Cucumbers (Thu & Fri)" },
+                { title: "Chop scallions", details: "Slice 4-6 scallions (white and green parts separate)", time: "5 min", container: "Label: Scallions (Thu & Fri)" },
+                { title: "Mince ginger", details: "Peel and mince 2-3 inches of fresh ginger", time: "5 min", container: "Label: Ginger (Thu & Fri)" },
+                { title: "Shred carrots", details: "Julienne or shred 3-4 carrots for coleslaw mix", time: "5 min", container: "Label: Carrots (Thu & Fri)" },
+                { title: "Mince garlic", details: "Mince 2-3 cloves of garlic for salmon marinade", time: "3 min", container: "Label: Garlic (Thu)" }
+            ],
+            sauce: [
+                { title: "Make poke bowl dressing", details: "Mix rice wine vinegar (3 tbsp), sugar (2 tbsp), sesame seeds (1 tbsp) for Thu & Fri bowls (double batch)", time: "5 min", container: "Label: Poke Dressing (Thu & Fri)" },
+                { title: "Prep salmon marinade", details: "Mix sweet soy glaze with minced ginger (save for Thu)", time: "3 min", container: "Label: Salmon Marinade (Thu)" }
+            ],
+            portion: [
+                { title: "Portion coleslaw mix", details: "Divide red cabbage/carrot mix into 2 containers (1 cup each)", time: "2 min", container: "Labels: Slaw-Thu, Slaw-Fri" },
+                { title: "Container for Wednesday dinner", details: "Combine: radishes, cucumbers, scallions, ginger, slaw, dressing in one container", time: "3 min", container: "Label: WEDNESDAY - Salmon Bowl Veggies" },
+                { title: "Container for Friday dinner", details: "Combine: radishes, cucumbers, scallions, ginger, slaw, dressing in one container", time: "3 min", container: "Label: FRIDAY - Tilapia Bowl Veggies" },
+                { title: "Store proteins separately", details: "Keep tilapia frozen, move salmon to fridge TUESDAY night to thaw for Wednesday", time: "2 min", container: "Note on calendar/phone" }
+            ],
+            label: [
+                { title: "Label all containers with day", details: "Use masking tape + marker: write day of week and meal name", time: "5 min", container: "" },
+                { title: "Organize fridge by day", details: "Put containers in order: Wed (front left), Fri (front right)", time: "2 min", container: "" },
+                { title: "Print Quick Cook Guide", details: "Print and post on fridge so you know what to cook each night", time: "3 min", container: "Post quick-cook-guide.html on fridge" }
+            ]
+        };
+
+        const meals = [
+            { day: "Monday, Mar 24", name: "Mozzarella-Cauli Bites & Smashed Potatoes", containers: ["See recipe card for ingredients", "No meal prep needed - cook fresh"] },
+            { day: "Tuesday, Mar 25", name: "Cheesy Beef Taco Mac Pasta", containers: ["Bell pepper, tomato, ground beef (from fridge)", "Pasta, taco seasoning, cheese (pantry)"] },
+            { day: "Wednesday, Mar 26", name: "Swicy Poke-Inspired Salmon Bowls", containers: ["Container: Wed Salmon Bowl Veggies", "Cook fresh: Rice, Salmon (thawed Tue night)", "Toppings: Spicy mayo, sweet soy glaze"] },
+            { day: "Thursday, Mar 27", name: "Swedish-Inspired Burgers", containers: ["See recipe card for ingredients", "No meal prep needed - cook fresh"] },
+            { day: "Friday, Mar 28", name: "Swicy Poke-Inspired Tilapia Bowls", containers: ["Container: Fri Tilapia Bowl Veggies", "Cook fresh: Rice, Tilapia (from frozen)", "Toppings: Spicy mayo, sweet soy glaze"] }
+        ];
+
+        function renderTasks() {
+            // Render washing tasks
+            renderTaskCategory('washing-tasks', prepTasks.washing);
+            renderTaskCategory('chopping-tasks', prepTasks.chopping);
+            renderTaskCategory('sauce-tasks', prepTasks.sauce);
+            renderTaskCategory('portion-tasks', prepTasks.portion);
+            renderTaskCategory('label-tasks', prepTasks.label);
+
+            // Render meal schedule
+            renderMealSchedule();
+
+            // Update stats
+            updateStats();
+        }
+
+        function renderTaskCategory(containerId, tasks) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const globalIndex = getGlobalIndex(containerId, index);
+                const checked = localStorage.getItem(`prep-task-${globalIndex}`) === 'true';
+
+                const taskDiv = document.createElement('div');
+                taskDiv.className = `prep-task ${checked ? 'completed-task' : ''}`;
+                taskDiv.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" id="task-${globalIndex}" ${checked ? 'checked' : ''} onchange="toggleTask(${globalIndex})">
+                    <div class="task-content">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-details">${task.details}</div>
+                        <span class="task-time">⏱️ ${task.time}</span>
+                        ${task.container ? `<div class="container-label"><strong>📦 ${task.container}</strong></div>` : ''}
+                    </div>
+                `;
+                container.appendChild(taskDiv);
+            });
+        }
+
+        function renderMealSchedule() {
+            const container = document.getElementById('meal-schedule');
+            container.innerHTML = '';
+
+            meals.forEach(meal => {
+                const mealCard = document.createElement('div');
+                mealCard.className = 'meal-card';
+                mealCard.innerHTML = `
+                    <div class="meal-day">${meal.day}</div>
+                    <div class="meal-name">${meal.name}</div>
+                    <div class="meal-containers">
+                        ${meal.containers.map(c => `• ${c}`).join('<br>')}
+                    </div>
+                `;
+                container.appendChild(mealCard);
+            });
+        }
+
+        function getGlobalIndex(categoryId, localIndex) {
+            const categories = ['washing-tasks', 'chopping-tasks', 'sauce-tasks', 'portion-tasks', 'label-tasks'];
+            const categoryIndex = categories.indexOf(categoryId);
+
+            let offset = 0;
+            for (let i = 0; i < categoryIndex; i++) {
+                const cat = categories[i].replace('-tasks', '');
+                offset += prepTasks[cat].length;
+            }
+
+            return offset + localIndex;
+        }
+
+        function toggleTask(index) {
+            const checkbox = document.getElementById(`task-${index}`);
+            localStorage.setItem(`prep-task-${index}`, checkbox.checked);
+            renderTasks();
+        }
+
+        function updateStats() {
+            const allTasks = [
+                ...prepTasks.washing,
+                ...prepTasks.chopping,
+                ...prepTasks.sauce,
+                ...prepTasks.portion,
+                ...prepTasks.label
+            ];
+
+            const completed = allTasks.filter((_, index) =>
+                localStorage.getItem(`prep-task-${index}`) === 'true'
+            ).length;
+
+            document.getElementById('total-tasks').textContent = allTasks.length;
+            document.getElementById('completed-count').textContent = completed;
+
+            const percentage = (completed / allTasks.length) * 100;
+            document.getElementById('progress').style.width = `${percentage}%`;
+        }
+
+        function resetProgress() {
+            if (confirm('Reset all task checkboxes?')) {
+                const allTasks = [
+                    ...prepTasks.washing,
+                    ...prepTasks.chopping,
+                    ...prepTasks.sauce,
+                    ...prepTasks.portion,
+                    ...prepTasks.label
+                ];
+
+                allTasks.forEach((_, index) => {
+                    localStorage.removeItem(`prep-task-${index}`);
+                });
+
+                renderTasks();
+            }
+        }
+
+        // Initialize
+        renderTasks();
+    </script>
+    <script src="meal-planner-nav.js"></script>
+</body>
+</html>

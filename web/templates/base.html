@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Meal Planner{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Global loading spinner styles */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+        .btn-loading .btn-text { visibility: hidden; }
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: btn-spin 0.8s linear infinite;
+        }
+        @keyframes btn-spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #91C13E;
+            border-radius: 50%;
+            animation: btn-spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        /* Auth UI styles */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 1px solid rgba(255,255,255,0.2);
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-name {
+            color: #fff;
+            font-size: 14px;
+        }
+        .btn-login, .btn-logout {
+            background: #fff;
+            color: #91C13E;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-login:hover, .btn-logout:hover {
+            background: #91C13E;
+            color: #fff;
+        }
+        .btn-logout {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .btn-settings {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .btn-settings:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar no-print">
+        <div class="container">
+            <a href="/" class="logo">🍳 Meal Planner</a>
+            <div class="nav-links">
+                <a href="/">Recipes</a>
+                <a href="/meal-plans">Meal Plans</a>
+                <a href="/search">Search</a>
+                <a href="/admin/pending-deletions">Admin</a>
+
+                {% if current_user.is_authenticated %}
+                <div class="user-menu">
+                    {% if current_user.avatar_url %}
+                    <img src="{{ current_user.avatar_url }}" alt="{{ current_user.name }}" class="user-avatar">
+                    {% endif %}
+                    <span class="user-name">{{ current_user.name or current_user.email }}</span>
+                    <a href="/settings" class="btn-settings">Settings</a>
+                    <a href="/auth/logout" class="btn-logout">Sign Out</a>
+                </div>
+                {% else %}
+                <a href="/auth/login" class="btn-login">Sign in with Google</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="no-print">
+        <div class="container">
+            <p>Built with ❤️ for easy meal planning</p>
+        </div>
+    </footer>
+</body>
+</html>

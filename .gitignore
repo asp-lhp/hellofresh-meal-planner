@@ -1,0 +1,114 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+ENV/
+env/
+.venv
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+.vs/
+.vscode/
+*.swp
+*~
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+recipes.db
+database/*.db
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# IDE
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Docker
+.dockerignore
+
+# OpenClaw
+openclaw/config.local.json
+openclaw/*.log
+
+# Environment
+.env
+.env.local
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+*.cover
+.coverage
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Node (if we add a frontend later)
+node_modules/
+package-lock.json
+
+# Build artifacts
+*.tar.gz
+*.zip
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.cert
+
+# Kroger credentials
+.kroger-config.json
+.kroger-user-token.json

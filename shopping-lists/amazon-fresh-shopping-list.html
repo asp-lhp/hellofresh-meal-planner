@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Fresh Shopping List - Week of March 24</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #067D62;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            font-size: 14px;
+            color: #067D62;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #E8F5E9;
+            border-radius: 8px;
+        }
+
+        .stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #067D62;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .item {
+            display: grid;
+            grid-template-columns: 30px 1fr auto;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+
+        .item:hover {
+            background: #f9f9f9;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            margin-top: 5px;
+            cursor: pointer;
+            accent-color: #067D62;
+        }
+
+        .item-content {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: capitalize;
+            color: #333;
+        }
+
+        .item-quantity {
+            font-size: 16px;
+            color: #067D62;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .item-package {
+            font-size: 15px;
+            color: #444;
+            margin-bottom: 5px;
+            padding: 8px 12px;
+            background: #E8F5E9;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .item-notes {
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .amazon-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #FF9900;
+            color: #232F3E;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .amazon-link:hover {
+            background: #FFA500;
+        }
+
+        .completed {
+            opacity: 0.5;
+        }
+
+        .completed .item-name {
+            text-decoration: line-through;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #FF9900;
+            color: #232F3E;
+        }
+
+        .btn-primary:hover {
+            background: #FFA500;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e5e5;
+        }
+
+        .btn-compare {
+            background: #0071ce;
+            color: white;
+        }
+
+        .btn-compare:hover {
+            background: #004f9a;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #067D62;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        .note {
+            background: #FFF9E6;
+            border-left: 4px solid #FF9900;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .note-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #232F3E;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .actions {
+                display: none;
+            }
+
+            .amazon-link {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🍃 amazon fresh</div>
+        <h1>🛒 Shopping List</h1>
+        <p class="subtitle">Week of March 24, 2026 • Meal Plan #1</p>
+
+        <div class="note">
+            <div class="note-title">💡 Compare with Walmart</div>
+            Open both lists side-by-side to compare prices and availability. Amazon Fresh typically has better selection on specialty items like barramundi, while Walmart often has better prices on staples.
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="total-items">25</div>
+                <div class="stat-label">Total Items</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="completed-items">0</div>
+                <div class="stat-label">In Cart</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="remaining-items">25</div>
+                <div class="stat-label">Remaining</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="openAllInTabs()">🔗 Open All in Amazon Fresh Tabs</button>
+            <button class="btn btn-compare" onclick="openWalmartList()">↔️ Open Walmart List</button>
+            <button class="btn btn-secondary" onclick="window.print()">🖨️ Print List</button>
+            <button class="btn btn-secondary" onclick="resetChecklist()">↺ Reset</button>
+        </div>
+
+        <div id="shopping-list">
+            <!-- Items will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const items = [
+  { name: "Tilapia", package: "1 package frozen tilapia fillets (2 lb)", quantity: "2 fillets (12-16 oz total)", search: "tilapia fillets frozen", notes: "Frozen is fine and more economical" },
+  { name: "Barramundi", package: "2 fresh barramundi fillets (6-8 oz each)", quantity: "2 fillets (12-16 oz total)", search: "barramundi fillets fresh", notes: "Amazon Fresh likely has this - check fresh fish section" },
+  { name: "Chili Flakes", package: "1 jar crushed red pepper (1.5-2 oz)", quantity: "1-2 teaspoons", search: "crushed red pepper flakes", notes: "Pantry staple - small jar is fine" },
+  { name: "Cilantro", package: "1 fresh bunch cilantro", quantity: "1 bunch (about 1 cup chopped)", search: "fresh cilantro bunch", notes: "Usually comes in bunches, one is enough" },
+  { name: "Cumin", package: "1 jar ground cumin (2-2.5 oz)", quantity: "1-2 teaspoons", search: "ground cumin spice", notes: "Pantry staple - standard spice jar" },
+  { name: "Ginger", package: "1 piece fresh ginger root (3-4 inches)", quantity: "2-3 inches fresh ginger root", search: "fresh ginger root", notes: "Buy a hand-sized piece" },
+  { name: "Israeli Couscous", package: "1 box pearl couscous (12-16 oz)", quantity: "1.5 cups dry", search: "pearl couscous israeli", notes: "Also called pearl couscous" },
+  { name: "Limes", package: "1 bag fresh limes (4-6 count)", quantity: "4 limes total", search: "fresh limes", notes: "Used in 2 recipes, buy a small bag" },
+  { name: "Mini Cucumbers", package: "1 package Persian cucumbers (6 count)", quantity: "4 mini cucumbers", search: "persian cucumbers mini", notes: "Also called Persian cucumbers" },
+  { name: "Radishes", package: "1 bunch fresh radishes", quantity: "1 bunch (about 8-10 radishes)", search: "fresh radishes bunch", notes: "Usually sold in bunches" },
+  { name: "Ranch Steak", package: "2 ranch steaks (6-8 oz each)", quantity: "12-16 oz (2 steaks)", search: "beef ranch steak", notes: "Fresh beef section - can substitute with sirloin" },
+  { name: "Scallions", package: "2 bunches green onions/scallions", quantity: "4-6 scallions", search: "green onions scallions bunch", notes: "Used in 2 recipes" },
+  { name: "Sesame Seeds", package: "1 jar sesame seeds (2-3 oz)", quantity: "2-3 tablespoons", search: "sesame seeds", notes: "Toasted or plain, Asian section" },
+  { name: "Spicy Mayo", package: "1 bottle spicy mayo or Kewpie mayo (12 oz)", quantity: "1/4 cup", search: "kewpie mayo spicy", notes: "Asian section - or make your own with mayo + sriracha" },
+  { name: "Sweet Soy Glaze", package: "1 bottle teriyaki sauce or soy glaze (10-15 oz)", quantity: "1/2 cup", search: "teriyaki sauce kikkoman", notes: "Kikkoman teriyaki works great" },
+  { name: "Veggie Stock", package: "1 jar Better Than Bouillon Vegetable (8 oz)", quantity: "1-2 teaspoons", search: "better than bouillon vegetable base", notes: "Keeps for months in fridge" },
+  { name: "Zucchini", package: "2 fresh zucchini", quantity: "1-2 medium zucchini", search: "fresh zucchini", notes: "Medium size, about 6-8 inches long each" },
+  { name: "Rice", package: "1 bag white rice (2 lb or 5 lb)", quantity: "3 cups cooked (1 cup dry)", search: "white rice long grain jasmine", notes: "Jasmine or long grain white rice" },
+  { name: "Sugar", package: "1 bag granulated sugar (2 lb or 4 lb)", quantity: "3-4 tablespoons", search: "granulated sugar", notes: "Pantry staple - buy size based on what you have" },
+  { name: "Carrots", package: "1 bag (2 lb) fresh carrots", quantity: "3-4 medium carrots (about 1 lb)", search: "fresh carrots bag", notes: "Used in multiple recipes, 2 lb bag is most economical" },
+  { name: "Garlic", package: "2 bulbs fresh garlic", quantity: "6-9 cloves total", search: "fresh garlic bulb", notes: "Used in 3 recipes, buy 2 bulbs to be safe" },
+  { name: "Garlic Powder", package: "1 jar garlic powder (2.5-3 oz)", quantity: "1 teaspoon", search: "garlic powder", notes: "Pantry staple if you don't have it" },
+  { name: "Onion", package: "1-2 medium yellow onions", quantity: "1 medium yellow onion", search: "yellow onion", notes: "Buy one or two - they keep well" },
+  { name: "Rice Wine Vinegar", package: "1 bottle rice vinegar (12 oz)", quantity: "3-4 tablespoons", search: "rice wine vinegar", notes: "Asian section - keeps for months" },
+  { name: "Coleslaw Mix", package: "1 bag coleslaw mix (14-16 oz)", quantity: "2 cups shredded", search: "red cabbage coleslaw mix", notes: "Look for red cabbage slaw mix in produce" }
+];
+
+        function renderList() {
+            const listContainer = document.getElementById('shopping-list');
+            listContainer.innerHTML = '';
+
+            items.forEach((item, index) => {
+                const checked = localStorage.getItem(`amazon-fresh-item-${index}`) === 'true';
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `item ${checked ? 'completed' : ''}`;
+                itemDiv.innerHTML = `
+                    <input type="checkbox" class="checkbox" id="item-${index}" ${checked ? 'checked' : ''} onchange="toggleItem(${index})">
+                    <div class="item-content">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-quantity">📏 Need: ${item.quantity}</div>
+                        <div class="item-package">🛒 Buy: ${item.package}</div>
+                        ${item.notes ? `<div class="item-notes">💡 ${item.notes}</div>` : ''}
+                        <a href="https://www.amazon.com/s?k=${encodeURIComponent(item.search)}&i=amazonfresh" target="_blank" class="amazon-link">
+                            Search on Amazon Fresh
+                        </a>
+                    </div>
+                `;
+
+                listContainer.appendChild(itemDiv);
+            });
+
+            updateStats();
+        }
+
+        function toggleItem(index) {
+            const checkbox = document.getElementById(`item-${index}`);
+            localStorage.setItem(`amazon-fresh-item-${index}`, checkbox.checked);
+            renderList();
+        }
+
+        function updateStats() {
+            const completed = items.filter((_, index) =>
+                localStorage.getItem(`amazon-fresh-item-${index}`) === 'true'
+            ).length;
+
+            document.getElementById('total-items').textContent = items.length;
+            document.getElementById('completed-items').textContent = completed;
+            document.getElementById('remaining-items').textContent = items.length - completed;
+
+            const percentage = (completed / items.length) * 100;
+            document.getElementById('progress').style.width = `${percentage}%`;
+        }
+
+        function openAllInTabs() {
+            const unchecked = items.filter((_, index) =>
+                localStorage.getItem(`amazon-fresh-item-${index}`) !== 'true'
+            );
+
+            if (unchecked.length === 0) {
+                alert('All items are already checked off!');
+                return;
+            }
+
+            if (unchecked.length > 10) {
+                if (!confirm(`This will open ${unchecked.length} tabs. Continue?`)) {
+                    return;
+                }
+            }
+
+            unchecked.forEach((item, index) => {
+                setTimeout(() => {
+                    const url = `https://www.amazon.com/s?k=${encodeURIComponent(item.search)}&i=amazonfresh`;
+                    window.open(url, '_blank');
+                }, index * 600); // Delay 600ms between tabs
+            });
+        }
+
+        function resetChecklist() {
+            if (confirm('Reset all checkboxes?')) {
+                items.forEach((_, index) => {
+                    localStorage.removeItem(`amazon-fresh-item-${index}`);
+                });
+                renderList();
+            }
+        }
+
+        function openWalmartList() {
+            window.open('/Users/andresprague/Desktop/VS/walmart-shopping-list.html', '_blank');
+        }
+
+        // Initialize
+        renderList();
+    </script>
+    <script src="meal-planner-nav.js"></script>
+</body>
+</html>

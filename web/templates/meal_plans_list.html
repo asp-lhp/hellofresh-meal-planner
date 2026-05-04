@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}My Meal Plans - Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>🗓️ My Meal Plans</h1>
+        <a href="/meal-plans/create" class="btn-primary">+ Create New Plan</a>
+    </div>
+
+    {% if meal_plans %}
+    <div class="meal-plans-grid">
+        {% for plan in meal_plans %}
+        <a href="/meal-plans/{{ plan.id }}" class="meal-plan-card">
+            <div class="meal-plan-header">
+                <h3>{{ plan.name }}</h3>
+                <span class="recipe-count">{{ plan.recipeCount }} recipes</span>
+            </div>
+
+            <div class="meal-plan-dates">
+                <span>📅 {{ plan.startDate[:10] }} to {{ plan.endDate[:10] }}</span>
+            </div>
+
+            <div class="meal-plan-actions">
+                <span class="link-text">View Plan →</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No meal plans yet. Create your first one!</p>
+        <a href="/meal-plans/create" class="btn-primary">Create Meal Plan</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.meal-plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.meal-plan-card {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+    border-left: 4px solid #91C13E;
+}
+
+.meal-plan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.meal-plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 15px;
+}
+
+.meal-plan-header h3 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.recipe-count {
+    background: #f0f0f0;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #666;
+}
+
+.meal-plan-dates {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.meal-plan-actions {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.link-text {
+    color: #91C13E;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.btn-primary {
+    background: #91C13E;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #7DAD2E;
+}
+</style>
+{% endblock %}

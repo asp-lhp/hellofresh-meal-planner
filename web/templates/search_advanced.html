@@ -1,0 +1,480 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced Search - Meal Planner{% endblock %}
+
+{% block content %}
+<div class="search-layout">
+    <!-- Filter Sidebar -->
+    <aside class="filter-sidebar" id="filterSidebar">
+        <div class="filter-header">
+            <h3>Filter Recipes</h3>
+            <button onclick="closeFilters()" class="close-sidebar">×</button>
+        </div>
+
+        <form method="GET" action="/search/advanced" id="filterForm">
+            <!-- Difficulty -->
+            <div class="filter-section">
+                <h4>Difficulty</h4>
+                <label class="filter-checkbox">
+                    <input type="checkbox" name="difficulty" value="Easy" {% if 'Easy' in difficulties %}checked{% endif %}>
+                    Easy
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" name="difficulty" value="Medium" {% if 'Medium' in difficulties %}checked{% endif %}>
+                    Medium
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" name="difficulty" value="Hard" {% if 'Hard' in difficulties %}checked{% endif %}>
+                    Hard
+                </label>
+            </div>
+
+            <!-- Prep Time Slider -->
+            <div class="filter-section">
+                <h4>Prep Time</h4>
+                <div class="slider-value">0 - <span id="prepTimeValue">{{ max_prep or 270 }}</span> min</div>
+                <input type="range" name="max_prep" min="0" max="270" step="15" value="{{ max_prep or 270 }}" class="time-slider" id="prepTimeSlider">
+            </div>
+
+            <!-- Total Time Slider -->
+            <div class="filter-section">
+                <h4>Total Time</h4>
+                <div class="slider-value">0 - <span id="totalTimeValue">{{ max_time or 180 }}</span> min</div>
+                <input type="range" name="max_time" min="0" max="180" step="15" value="{{ max_time or 180 }}" class="time-slider" id="totalTimeSlider">
+            </div>
+
+            <!-- With Ingredients -->
+            <div class="filter-section">
+                <h4>With Ingredients</h4>
+                <input type="text" name="with_ingredient" placeholder="e.g., chicken, garlic" value="{{ with_ingredient or '' }}" class="filter-input">
+                <small>Recipes that contain this ingredient</small>
+            </div>
+
+            <!-- Without Ingredients -->
+            <div class="filter-section">
+                <h4>Without Ingredients</h4>
+                <input type="text" name="without_ingredient" placeholder="e.g., nuts, dairy" value="{{ without_ingredient or '' }}" class="filter-input">
+                <small>Recipes that don't contain this</small>
+            </div>
+
+            <!-- Tags -->
+            <div class="filter-section">
+                <h4>Tags</h4>
+                <div class="tag-filter-groups">
+                    <details>
+                        <summary>Cuisine</summary>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Mexican"> Mexican</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Italian"> Italian</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Asian"> Asian</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Indian"> Indian</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="American"> American</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Mediterranean"> Mediterranean</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Thai"> Thai</label>
+                    </details>
+
+                    <details>
+                        <summary>Dietary</summary>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Vegetarian"> Vegetarian</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Vegan"> Vegan</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Gluten-Free"> Gluten-Free</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Dairy-Free"> Dairy-Free</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Low-Carb"> Low-Carb</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="High-Protein"> High-Protein</label>
+                    </details>
+
+                    <details>
+                        <summary>Cooking Style</summary>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="One Pot"> One Pot</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Quick"> Quick</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Easy Prep"> Easy Prep</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Make-Ahead"> Make-Ahead</label>
+                    </details>
+
+                    <details>
+                        <summary>Meal Type</summary>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Breakfast"> Breakfast</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Lunch"> Lunch</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Dinner"> Dinner</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Snack"> Snack</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Drinks"> Drinks</label>
+                    </details>
+
+                    <details>
+                        <summary>Protein</summary>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Chicken"> Chicken</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Beef"> Beef</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Pork"> Pork</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Fish"> Fish</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Seafood"> Seafood</label>
+                        <label class="filter-checkbox"><input type="checkbox" name="tag" value="Plant-Based"> Plant-Based</label>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Filter Actions -->
+            <div class="filter-actions">
+                <button type="submit" class="btn-primary btn-full">Apply Filters</button>
+                <button type="button" onclick="clearAllFilters()" class="btn-secondary btn-full">Clear All</button>
+            </div>
+        </form>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="search-main-content">
+        <!-- Search Bar -->
+        <div class="search-header">
+            <button onclick="toggleFilters()" class="filter-toggle-btn" id="filterToggleBtn">
+                <span class="filter-icon">⚙️</span> Filter
+            </button>
+
+            <form method="GET" action="/search/advanced" class="search-bar-compact">
+                <input type="text" name="q" placeholder="Search recipes..." value="{{ query or '' }}" class="search-input-compact">
+                <button type="submit" class="search-btn-compact">Search</button>
+            </form>
+        </div>
+
+        <!-- Results -->
+        {% if results is defined %}
+        <div class="results-header">
+            <h2>{{ result_count }} Recipe{% if result_count != 1 %}s{% endif %} Found</h2>
+            {% if active_filters %}
+            <div class="active-filters">
+                <strong>Active filters:</strong>
+                {% for filter in active_filters %}
+                <span class="active-filter-tag">{{ filter }} <a href="#">×</a></span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if recipes %}
+        <div class="recipe-grid">
+            {% for recipe in recipes %}
+            <a href="/recipe/{{ recipe.id }}" class="recipe-card">
+                {% if recipe.image_url %}
+                <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" class="recipe-image">
+                {% else %}
+                <div class="recipe-image-placeholder">📸</div>
+                {% endif %}
+
+                <div class="recipe-info">
+                    <h3>{{ recipe.name }}</h3>
+
+                    <div class="recipe-meta">
+                        {% if recipe.total_time %}
+                        <span class="meta-item time-badge">⏱️ {{ recipe.total_time }} min</span>
+                        {% endif %}
+
+                        {% if recipe.servings %}
+                        <span class="meta-item servings-badge">{{ recipe.servings }}/{{ recipe.servings }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="recipe-tags">
+                        {% if recipe.difficulty %}
+                        <span class="recipe-tag difficulty-tag">{{ recipe.difficulty }}</span>
+                        {% endif %}
+
+                        {% for tag in recipe.tags[:4] %}
+                        <span class="recipe-tag cuisine-tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">
+            <p>No recipes found. Try adjusting your filters.</p>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="search-welcome">
+            <h2>🔍 Advanced Recipe Search</h2>
+            <p>Use the filters to find your perfect recipe</p>
+
+            <div class="quick-filters">
+                <h3>Quick Filters</h3>
+                <a href="/search/advanced?tag=Quick&max_time=30" class="quick-filter-card">
+                    <span class="quick-icon">⚡</span>
+                    <span>Quick Meals</span>
+                    <small>Under 30 min</small>
+                </a>
+
+                <a href="/search/advanced?tag=Vegetarian" class="quick-filter-card">
+                    <span class="quick-icon">🥗</span>
+                    <span>Vegetarian</span>
+                    <small>Plant-based</small>
+                </a>
+
+                <a href="/search/advanced?tag=High-Protein" class="quick-filter-card">
+                    <span class="quick-icon">💪</span>
+                    <span>High Protein</span>
+                    <small>30g+ protein</small>
+                </a>
+
+                <a href="/search/advanced?tag=One%20Pot" class="quick-filter-card">
+                    <span class="quick-icon">🍲</span>
+                    <span>One Pot</span>
+                    <small>Easy cleanup</small>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.search-layout {
+    display: flex;
+    gap: 0;
+    min-height: calc(100vh - 200px);
+}
+
+.filter-sidebar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid #e0e0e0;
+    padding: 20px;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #eee;
+}
+
+.filter-header h3 {
+    margin: 0;
+}
+
+.close-sidebar {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    color: #666;
+}
+
+.filter-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-section h4 {
+    margin-bottom: 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #666;
+}
+
+.filter-checkbox {
+    display: block;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.filter-checkbox input {
+    margin-right: 8px;
+}
+
+.slider-value {
+    text-align: right;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.time-slider {
+    width: 100%;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.filter-input + small {
+    color: #999;
+    font-size: 12px;
+}
+
+.tag-filter-groups details {
+    margin-bottom: 10px;
+}
+
+.tag-filter-groups summary {
+    cursor: pointer;
+    padding: 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.tag-filter-groups label {
+    margin-left: 10px;
+}
+
+.filter-actions {
+    margin-top: 20px;
+}
+
+.btn-full {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.search-main-content {
+    flex: 1;
+    padding: 0 20px;
+}
+
+.search-header {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+.filter-toggle-btn {
+    display: none;
+    padding: 12px 20px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.search-bar-compact {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+}
+
+.search-input-compact {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.search-btn-compact {
+    padding: 12px 30px;
+    background: #91C13E;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.search-welcome {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.quick-filters {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.quick-filter-card {
+    padding: 30px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-decoration: none;
+    color: #333;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.quick-filter-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.quick-icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.quick-filter-card span:nth-child(2) {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.quick-filter-card small {
+    color: #666;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .filter-sidebar {
+        position: fixed;
+        left: -320px;
+        top: 0;
+        bottom: 0;
+        z-index: 1000;
+        transition: left 0.3s;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+
+    .filter-sidebar.open {
+        left: 0;
+    }
+
+    .close-sidebar {
+        display: block;
+    }
+
+    .filter-toggle-btn {
+        display: block;
+    }
+}
+</style>
+
+<script>
+// Update slider values
+document.getElementById('prepTimeSlider').addEventListener('input', function() {
+    document.getElementById('prepTimeValue').textContent = this.value;
+});
+
+document.getElementById('totalTimeSlider').addEventListener('input', function() {
+    document.getElementById('totalTimeValue').textContent = this.value;
+});
+
+function toggleFilters() {
+    document.getElementById('filterSidebar').classList.toggle('open');
+}
+
+function closeFilters() {
+    document.getElementById('filterSidebar').classList.remove('open');
+}
+
+function clearAllFilters() {
+    window.location.href = '/search/advanced';
+}
+</script>
+{% endblock %}

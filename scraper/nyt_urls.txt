@@ -1,0 +1,5 @@
+# NYT Cooking Recipe URLs
+# Add one URL per line — tracking params (?campaign_id=...) are stripped automatically
+# Run: python3 nyt_import.py --file nyt_urls.txt --skip-existing
+
+https://cooking.nytimes.com/recipes/1026415-beef-fried-rice

@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Create Meal Plan - Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>🗓️ Create Meal Plan</h1>
+    <p class="subtitle">Select recipes for your week</p>
+
+    <!-- Meal Plan Form -->
+    <div class="meal-plan-form">
+        <form id="mealPlanForm">
+            <div class="form-group">
+                <label for="planName">Plan Name</label>
+                <input type="text" id="planName" name="name" placeholder="Week of March 24" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate" name="endDate" required>
+                </div>
+            </div>
+
+            <div class="selected-recipes-summary">
+                <strong>Selected Recipes: </strong>
+                <span id="selectedCount">0</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- Recipe Selection Grid -->
+    <div class="recipe-selection-grid">
+        {% for recipe in recipes %}
+        <div class="recipe-card-select">
+            <input type="checkbox" class="recipe-checkbox" data-recipe-id="{{ recipe.id }}" data-recipe-name="{{ recipe.name }}">
+
+            {% if recipe.image_url %}
+            <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" class="recipe-image-small">
+            {% else %}
+            <div class="recipe-image-placeholder-small">📸</div>
+            {% endif %}
+
+            <div class="recipe-info-select">
+                <h3>{{ recipe.name }}</h3>
+
+                <div class="recipe-meta-compact">
+                    {% if recipe.total_time %}
+                    <span class="time-badge">⏱️ {{ recipe.total_time }}min</span>
+                    {% endif %}
+
+                    {% if recipe.servings %}
+                    <span class="servings-badge">{{ recipe.servings }}/{{ recipe.servings }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Recipe Tags -->
+                <div class="recipe-tags-compact">
+                    {% if recipe.difficulty %}
+                    <span class="recipe-tag difficulty-tag">{{ recipe.difficulty }}</span>
+                    {% endif %}
+
+                    {% if recipe.total_time and recipe.total_time <= 30 %}
+                    <span class="recipe-tag quick-tag">Quick</span>
+                    {% endif %}
+
+                    {% if recipe.prep_time and recipe.prep_time <= 10 %}
+                    <span class="recipe-tag prep-tag">Easy Prep</span>
+                    {% endif %}
+
+                    {% for tag in recipe.tags[:2] %}
+                    <span class="recipe-tag cuisine-tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="servings-input" style="display:none;">
+                    <label>Servings:</label>
+                    <input type="number" class="servings" min="1" max="10" value="2" data-recipe-id="{{ recipe.id }}">
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Create Button -->
+    <div class="create-meal-plan-actions">
+        <button id="createPlanBtn" class="btn-primary btn-large" disabled>
+            Create Meal Plan
+        </button>
+    </div>
+</div>
+
+<style>
+.meal-plan-form {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.selected-recipes-summary {
+    padding: 15px;
+    background: #f0f8ff;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.recipe-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.recipe-card-select {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    transition: all 0.2s;
+    border: 3px solid transparent;
+}
+
+.recipe-card-select.selected {
+    border-color: #91C13E;
+    transform: scale(1.02);
+}
+
+.recipe-checkbox {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.recipe-image-small {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.recipe-image-placeholder-small {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    font-size: 48px;
+}
+
+.recipe-info-select {
+    padding: 15px;
+}
+
+.recipe-info-select h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.recipe-meta-compact {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    color: #666;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.recipe-tags-compact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.recipe-tags-compact .recipe-tag {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: capitalize;
+}
+
+.recipe-tags-compact .difficulty-tag {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.recipe-tags-compact .quick-tag {
+    background: #E3F2FD;
+    color: #1565C0;
+}
+
+.recipe-tags-compact .prep-tag {
+    background: #F3E5F5;
+    color: #6A1B9A;
+}
+
+.recipe-tags-compact .cuisine-tag {
+    background: #F5F5F5;
+    color: #424242;
+    border: 1px solid #E0E0E0;
+}
+
+.servings-input {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.servings-input label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.servings-input input {
+    width: 80px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.create-meal-plan-actions {
+    text-align: center;
+    padding: 30px 0;
+}
+
+.btn-primary {
+    background: #91C13E;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #7DAD2E;
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-large {
+    padding: 15px 50px;
+    font-size: 20px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.recipe-checkbox');
+    const selectedCount = document.getElementById('selectedCount');
+    const createBtn = document.getElementById('createPlanBtn');
+    const form = document.getElementById('mealPlanForm');
+
+    // Set default dates (this week)
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - today.getDay() + 1);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    document.getElementById('startDate').valueAsDate = monday;
+    document.getElementById('endDate').valueAsDate = sunday;
+
+    // Handle checkbox selection
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const card = this.closest('.recipe-card-select');
+            const servingsDiv = card.querySelector('.servings-input');
+
+            if (this.checked) {
+                card.classList.add('selected');
+                servingsDiv.style.display = 'block';
+            } else {
+                card.classList.remove('selected');
+                servingsDiv.style.display = 'none';
+            }
+
+            updateSelectedCount();
+        });
+    });
+
+    function updateSelectedCount() {
+        const selected = document.querySelectorAll('.recipe-checkbox:checked');
+        selectedCount.textContent = selected.length;
+        createBtn.disabled = selected.length === 0;
+    }
+
+    // Handle form submission
+    createBtn.addEventListener('click', async function() {
+        const planName = document.getElementById('planName').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (!planName || !startDate || !endDate) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        const selectedRecipes = Array.from(document.querySelectorAll('.recipe-checkbox:checked')).map(checkbox => {
+            const recipeId = parseInt(checkbox.dataset.recipeId);
+            const servings = parseInt(checkbox.closest('.recipe-card-select').querySelector('.servings').value);
+            return { recipeId, servings };
+        });
+
+        if (selectedRecipes.length === 0) {
+            alert('Please select at least one recipe');
+            return;
+        }
+
+        // Create meal plan via backend API
+        try {
+            createBtn.disabled = true;
+            createBtn.classList.add('btn-loading');
+            createBtn.innerHTML = '<span class="btn-text">Create Meal Plan</span>';
+
+            const response = await fetch('/meal-plans/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: planName,
+                    startDate: startDate,
+                    endDate: endDate,
+                    recipes: selectedRecipes
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                window.location.href = `/meal-plans/${result.id}`;
+            } else {
+                alert('Failed to create meal plan');
+                createBtn.disabled = false;
+                createBtn.classList.remove('btn-loading');
+                createBtn.textContent = 'Create Meal Plan';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error creating meal plan');
+            createBtn.disabled = false;
+            createBtn.classList.remove('btn-loading');
+            createBtn.textContent = 'Create Meal Plan';
+        }
+    });
+});
+</script>
+{% endblock %}

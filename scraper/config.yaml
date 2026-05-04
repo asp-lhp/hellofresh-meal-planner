@@ -1,0 +1,42 @@
+# HelloFresh Recipe Scraper Configuration
+
+# Wayback Machine settings
+wayback:
+  base_url: "https://web.archive.org/web/{timestamp}/{url}"
+  snapshot_date: "20250113112404"  # January 13, 2025 snapshot
+  original_url: "https://hfresh.info"
+
+# Scraping settings
+scraper:
+  region: "en-US"  # Can be: en-US, de-DE, en-AU, en-CA, etc.
+  max_recipes: 1000  # Maximum recipes to scrape (0 = unlimited)
+  delay_between_requests: 2.5  # seconds (be respectful to archive.org!)
+  retry_attempts: 3
+  retry_delay: 5  # seconds
+  timeout: 30  # seconds
+
+# Database settings
+database:
+  path: "../database/recipes.db"
+  schema_path: "../database/schema.sql"
+
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "scraper.log"
+  console: true
+
+# What to scrape
+features:
+  scrape_ingredients: true
+  scrape_instructions: true
+  scrape_nutrition: true
+  scrape_allergens: true
+  scrape_tags: true
+  download_images: false  # Set to true to download recipe images locally
+
+# Image settings (if download_images is true)
+images:
+  download_path: "../images/recipes"
+  download_ingredient_images: false
+  download_instruction_images: false

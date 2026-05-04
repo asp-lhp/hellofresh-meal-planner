@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}{{ meal_plan.name }} - Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="meal-plan-header-detail">
+        <div>
+            <h1>{{ meal_plan.name }}</h1>
+            <p class="meal-plan-dates-large">
+                📅 {{ meal_plan.startDate[:10] }} to {{ meal_plan.endDate[:10] }}
+            </p>
+        </div>
+
+        <div class="meal-plan-actions-buttons">
+            <a href="/meal-plans/{{ meal_plan.id }}/meal-prep" class="btn-accent btn-large">
+                📋 Generate Meal Prep Guide
+            </a>
+            <a href="/meal-plans/{{ meal_plan.id }}/shopping-list" class="btn-primary btn-large">
+                🛒 Generate Shopping List
+            </a>
+        </div>
+    </div>
+
+    <div class="meal-plan-stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ meal_plan.recipes|length }}</div>
+            <div class="stat-label">Recipes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ meal_plan.totalServings or 0 }}</div>
+            <div class="stat-label">Total Servings</div>
+        </div>
+        {% if meal_plan.totalCalories %}
+        <div class="stat-card">
+            <div class="stat-number">{{ meal_plan.totalCalories }}</div>
+            <div class="stat-label">Total Calories</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <h2>Recipes in This Plan</h2>
+
+    <div class="recipe-list-meal-plan">
+        {% for item in meal_plan.recipes %}
+        <div class="recipe-list-item">
+            <a href="/recipe/{{ item.recipeId }}" class="recipe-link">
+                {% if item.recipeImageUrl %}
+                <img src="{{ item.recipeImageUrl }}" alt="{{ item.recipeName }}" class="recipe-thumb">
+                {% else %}
+                <div class="recipe-thumb-placeholder">📸</div>
+                {% endif %}
+
+                <div class="recipe-list-info">
+                    <h3>{{ item.recipeName }}</h3>
+
+                    <div class="recipe-list-meta">
+                        {% if item.scheduledDate %}
+                        <span>📅 {{ item.scheduledDate[:10] }}</span>
+                        {% endif %}
+
+                        {% if item.mealType %}
+                        <span>🍽️ {{ item.mealType|capitalize }}</span>
+                        {% endif %}
+
+                        <span>👥 {{ item.servings }} servings</span>
+
+                        {% if item.totalTime %}
+                        <span>⏱️ {{ item.totalTime }}min</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="back-button">
+        <a href="/meal-plans" class="btn">← Back to Meal Plans</a>
+    </div>
+</div>
+
+<style>
+.meal-plan-header-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.meal-plan-dates-large {
+    font-size: 18px;
+    color: #666;
+    margin-top: 10px;
+}
+
+.meal-plan-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #91C13E;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 14px;
+}
+
+h2 {
+    margin: 40px 0 20px 0;
+    font-size: 24px;
+}
+
+.recipe-list-meal-plan {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.recipe-list-item {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.recipe-list-item:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.recipe-link {
+    display: flex;
+    text-decoration: none;
+    color: inherit;
+}
+
+.recipe-thumb {
+    width: 150px;
+    height: 120px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.recipe-thumb-placeholder {
+    width: 150px;
+    height: 120px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    font-size: 48px;
+}
+
+.recipe-list-info {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.recipe-list-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+}
+
+.recipe-list-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+.btn-large {
+    padding: 15px 30px;
+    font-size: 18px;
+}
+
+.btn-accent {
+    background: #FF6B35;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.btn-accent:hover {
+    background: #e55a2b;
+}
+
+.meal-plan-actions-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.back-button {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background: #e5e5e5;
+}
+</style>
+{% endblock %}

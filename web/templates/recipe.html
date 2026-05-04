@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.name }} - Meal Planner{% endblock %}
+
+{% block content %}
+<div class="recipe-card-full">
+    <!-- Print button - hidden on print -->
+    <button onclick="window.print()" class="print-button no-print">🖨️ Print Recipe</button>
+
+    <!-- Delete button - hidden on print -->
+    <form method="POST" action="/recipe/{{ recipe.id }}/mark-delete" style="display: inline;" onsubmit="return confirm('Mark this recipe for deletion? It will be hidden from the site.');">
+        <button type="submit" class="delete-button no-print">🗑️ Delete Recipe</button>
+    </form>
+
+    <!-- Recipe Header -->
+    <div class="recipe-header">
+        {% if recipe.image_url %}
+        <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" class="hero-image">
+        {% endif %}
+
+        <h1 class="recipe-title">{{ recipe.name }}</h1>
+
+        {% if recipe.description %}
+        <p class="recipe-description">{{ recipe.description }}</p>
+        {% endif %}
+
+        <!-- Recipe Meta Info -->
+        <div class="recipe-stats">
+            {% if recipe.prep_time %}
+            <div class="stat">
+                <span class="stat-label">Prep Time</span>
+                <span class="stat-value">{{ recipe.prep_time }} min</span>
+            </div>
+            {% endif %}
+
+            {% if recipe.cook_time %}
+            <div class="stat">
+                <span class="stat-label">Cook Time</span>
+                <span class="stat-value">{{ recipe.cook_time }} min</span>
+            </div>
+            {% endif %}
+
+            {% if recipe.total_time %}
+            <div class="stat">
+                <span class="stat-label">Total Time</span>
+                <span class="stat-value">{{ recipe.total_time }} min</span>
+            </div>
+            {% endif %}
+
+            {% if recipe.servings %}
+            <div class="stat">
+                <span class="stat-label">Servings</span>
+                <span class="stat-value">{{ recipe.servings }}</span>
+            </div>
+            {% endif %}
+
+            {% if recipe.difficulty %}
+            <div class="stat">
+                <span class="stat-label">Difficulty</span>
+                <span class="stat-value difficulty-{{ recipe.difficulty|lower }}">{{ recipe.difficulty }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Nutrition Info -->
+        {% if recipe.calories or recipe.protein or recipe.carbs or recipe.fat %}
+        <div class="nutrition-info">
+            <h3>Nutrition (per serving)</h3>
+            <div class="nutrition-grid">
+                {% if recipe.calories %}
+                <div class="nutrition-item">
+                    <span class="nutrition-label">Calories</span>
+                    <span class="nutrition-value">{{ recipe.calories }}</span>
+                </div>
+                {% endif %}
+                {% if recipe.protein %}
+                <div class="nutrition-item">
+                    <span class="nutrition-label">Protein</span>
+                    <span class="nutrition-value">{{ recipe.protein }}g</span>
+                </div>
+                {% endif %}
+                {% if recipe.carbs %}
+                <div class="nutrition-item">
+                    <span class="nutrition-label">Carbs</span>
+                    <span class="nutrition-value">{{ recipe.carbs }}g</span>
+                </div>
+                {% endif %}
+                {% if recipe.fat %}
+                <div class="nutrition-item">
+                    <span class="nutrition-label">Fat</span>
+                    <span class="nutrition-value">{{ recipe.fat }}g</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tags & Allergens -->
+        <div class="tags-allergens">
+            {% if tags %}
+            <div class="tags">
+                {% for tag in tags %}
+                <span class="tag">{{ tag.tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if allergens %}
+            <div class="allergens">
+                <strong>⚠️ Allergens:</strong>
+                {% for allergen in allergens %}
+                <span class="allergen">{{ allergen.allergen }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Ingredients Section -->
+    <div class="ingredients-section">
+        <h2>🛒 Ingredients</h2>
+        <ul class="ingredients-list">
+            {% for ingredient in ingredients %}
+            <li class="ingredient-item">
+                {% if ingredient.image_url %}
+                <img src="{{ ingredient.image_url }}" alt="{{ ingredient.name }}" class="ingredient-image">
+                {% endif %}
+                <span class="ingredient-text">
+                    {% if ingredient.quantity %}
+                    <strong>{{ ingredient.quantity }}</strong>
+                    {% endif %}
+                    {{ ingredient.name }}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Instructions Section -->
+    <div class="instructions-section">
+        <h2>👨‍🍳 Instructions</h2>
+        <ol class="instructions-list">
+            {% for instruction in instructions %}
+            <li class="instruction-step">
+                <div class="step-number">{{ instruction.step_number }}</div>
+                <div class="step-content">
+                    <p class="step-text">{{ instruction.description }}</p>
+                    {% if instruction.image_url %}
+                    <img src="{{ instruction.image_url }}" alt="Step {{ instruction.step_number }}" class="step-image">
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <!-- Source Link -->
+    {% if recipe.hellofresh_url %}
+    <div class="recipe-source no-print">
+        <p><strong>Source:</strong> <a href="{{ recipe.hellofresh_url }}" target="_blank">{{ recipe.hellofresh_url }}</a></p>
+    </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="back-button no-print">
+        <a href="/" class="btn">← Back to Recipes</a>
+    </div>
+</div>
+{% endblock %}

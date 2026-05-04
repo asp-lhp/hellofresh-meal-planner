@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weeknight Recipes - Mon-Fri</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 36px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .tab-btn.active {
+            background: #91C13E;
+            color: white;
+            border-color: #91C13E;
+        }
+
+        .recipe-card {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .recipe-card.active {
+            display: block;
+        }
+
+        .recipe-hero {
+            width: 100%;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .recipe-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+        }
+
+        .recipe-content {
+            padding: 40px;
+        }
+
+        .recipe-header {
+            border-bottom: 3px solid #91C13E;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .recipe-title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .recipe-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quick-ref {
+            background: #FFF9E6;
+            border-left: 4px solid #FF9900;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .quick-ref h3 {
+            color: #FF6F00;
+            margin-bottom: 15px;
+        }
+
+        .quick-ref-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .quick-ref-item {
+            font-size: 15px;
+            color: #333;
+        }
+
+        .quick-ref-item strong {
+            color: #FF6F00;
+        }
+
+        .ingredients-section, .instructions-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #91C13E;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ingredients-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .ingredient-item {
+            padding: 12px;
+            background: #f8f9fa;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ingredient-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .ingredient-amount {
+            color: #91C13E;
+            font-weight: 600;
+        }
+
+        .instruction-step {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            background: #91C13E;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-text {
+            color: #333;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .step-time {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .prepped-callout {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .prepped-callout strong {
+            color: #2E7D32;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #91C13E;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #7DAD2E;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e5e5;
+        }
+
+        @media print {
+            .nav-tabs, .actions {
+                display: none;
+            }
+
+            .recipe-card {
+                display: block !important;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍳 Weeknight Dinner Recipes</h1>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showRecipe(0)">Monday - Cauliflower Bites</button>
+            <button class="tab-btn" onclick="showRecipe(1)">Tuesday - Taco Mac</button>
+            <button class="tab-btn" onclick="showRecipe(2)">Wednesday - Salmon Bowls</button>
+            <button class="tab-btn" onclick="showRecipe(3)">Thursday - Burgers</button>
+            <button class="tab-btn" onclick="showRecipe(4)">Friday - Tilapia Bowls</button>
+        </div>
+
+        <!-- MONDAY -->
+        <div class="recipe-card active" id="recipe-0">
+            <div class="recipe-hero" style="background-image: url('https://img.hellofresh.com/hellofresh_s3/image/HF_Y26_R1059_W08_AU_R51929-3_Main_high-2b853e85.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="recipe-content">
+            <div class="recipe-header">
+                <div class="recipe-title">Mozzarella-Cauli Bites & Smashed Potatoes</div>
+                <div class="recipe-meta">
+                    <span>⏱️ Prep: 20 min</span>
+                    <span>🔥 Cook: 40 min</span>
+                    <span>🍽️ Servings: 2</span>
+                </div>
+            </div>
+
+            <div class="quick-ref">
+                <h3>⚡ Quick Reference</h3>
+                <div class="quick-ref-grid">
+                    <div class="quick-ref-item"><strong>From Fridge:</strong> (Recipe details needed)</div>
+                    <div class="quick-ref-item"><strong>Cook Fresh:</strong> Cauliflower, potatoes</div>
+                    <div class="quick-ref-item"><strong>Pantry:</strong> Mozzarella, yogurt, dill</div>
+                    <div class="quick-ref-item"><strong>Total Time:</strong> 60 min</div>
+                </div>
+            </div>
+
+            <div class="ingredients-section">
+                <h2 class="section-title">🛒 Ingredients</h2>
+                <ul class="ingredients-list">
+                    <li class="ingredient-item"><span class="ingredient-name">Cauliflower</span><span class="ingredient-amount">1 head (2 lbs)</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Baby potatoes</span><span class="ingredient-amount">1 lb</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Fresh mozzarella</span><span class="ingredient-amount">8 oz cubed</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Haloumi cheese</span><span class="ingredient-amount">7 oz package</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Greek yogurt</span><span class="ingredient-amount">1/2 cup</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Fresh dill</span><span class="ingredient-amount">1/4 cup chopped</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Salad greens</span><span class="ingredient-amount">4 cups</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Cherry tomatoes</span><span class="ingredient-amount">1 cup</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Cucumber</span><span class="ingredient-amount">1</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Panko breadcrumbs</span><span class="ingredient-amount">1/2 cup</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Eggs</span><span class="ingredient-amount">2</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Lemon, garlic, olive oil</span><span class="ingredient-amount">To taste</span></li>
+                </ul>
+            </div>
+
+            <div class="instructions-section">
+                <h2 class="section-title">👨‍🍳 Instructions</h2>
+
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Roast potatoes.</strong> Preheat oven to 425°F. Boil baby potatoes for 15 min until tender. Drain, place on baking sheet. Smash each with a fork, drizzle with olive oil, salt & pepper. Roast 25 min until crispy.</div>
+                        <span class="step-time">⏱️ 40 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Prep cauliflower bites.</strong> Cut cauliflower into florets. Dip in beaten egg, then coat in panko breadcrumbs. Add cubed mozzarella to some florets. Heat oil in a skillet and fry in batches until golden (4-5 min per batch).</div>
+                        <span class="step-time">⏱️ 15 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Make yogurt dressing.</strong> Mix Greek yogurt with minced garlic, chopped dill, lemon juice, salt & pepper. Thin with a bit of water if needed.</div>
+                        <span class="step-time">⏱️ 3 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Sear haloumi & assemble.</strong> Slice haloumi and sear in a hot skillet 2 min per side until golden. Spread yogurt dressing on plates, top with salad greens, smashed potatoes, cherry tomatoes, cucumber, cauliflower bites, and haloumi. Drizzle with hot sauce and dill.</div>
+                        <span class="step-time">⏱️ 10 min</span>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- TUESDAY -->
+        <div class="recipe-card" id="recipe-1">
+            <div class="recipe-hero" style="background-image: url('https://img.hellofresh.com/hellofresh_s3/image/HF_Y24_R1002_W50_CA_RB24134-1_edit_peppers_MAIN_low-6029e24f.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="recipe-content">
+            <div class="recipe-header">
+                <div class="recipe-title">Cheesy Beef Taco Mac Pasta</div>
+                <div class="recipe-meta">
+                    <span>⏱️ Prep: 4 min</span>
+                    <span>🔥 Cook: 9 min</span>
+                    <span>🍽️ Servings: 2</span>
+                </div>
+            </div>
+
+            <div class="quick-ref">
+                <h3>⚡ Quick Reference</h3>
+                <div class="quick-ref-grid">
+                    <div class="quick-ref-item"><strong>From Fridge:</strong> (Recipe details needed)</div>
+                    <div class="quick-ref-item"><strong>Cook Fresh:</strong> Ground beef, pasta</div>
+                    <div class="quick-ref-item"><strong>Pantry:</strong> Taco seasoning, cheese</div>
+                    <div class="quick-ref-item"><strong>Total Time:</strong> 13 min</div>
+                </div>
+            </div>
+
+            <div class="ingredients-section">
+                <h2 class="section-title">🛒 Ingredients</h2>
+                <ul class="ingredients-list">
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Ground beef</span>
+                        <span class="ingredient-amount">12-16 oz</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Cavatappi pasta</span>
+                        <span class="ingredient-amount">8 oz</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Sweet bell pepper</span>
+                        <span class="ingredient-amount">1</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Roma tomato</span>
+                        <span class="ingredient-amount">1</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Cheddar cheese</span>
+                        <span class="ingredient-amount">1/2 cup shredded</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Sour cream</span>
+                        <span class="ingredient-amount">1/4 cup</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Taco seasoning / Enchilada spice</span>
+                        <span class="ingredient-amount">2 tbsp</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="instructions-section">
+                <h2 class="section-title">👨‍🍳 Instructions</h2>
+
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Boil water for pasta.</strong> Bring a large pot of salted water to a boil. Cook pasta according to package directions until al dente. Drain and set aside.
+                        </div>
+                        <span class="step-time">⏱️ 8-10 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Brown the beef.</strong> While pasta cooks, heat a large skillet over medium-high. Add ground beef and cook, breaking up with a spoon, until browned (5-7 min). Drain excess fat.
+                        </div>
+                        <span class="step-time">⏱️ 7 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Add veggies and seasoning.</strong> Dice bell pepper and tomato. Add to beef along with taco seasoning. Cook 2-3 minutes until veggies soften.
+                        </div>
+                        <span class="step-time">⏱️ 3 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Combine and serve.</strong> Add cooked pasta to skillet with beef mixture. Toss to combine. Remove from heat and stir in cheese. Serve topped with sour cream and green onions.
+                        </div>
+                        <span class="step-time">⏱️ 2 min</span>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- WEDNESDAY -->
+        <div class="recipe-card" id="recipe-3">
+            <div class="recipe-hero" style="background-image: url('https://img.hellofresh.com/hellofresh_s3/image/burgers-facon-suedoise-bf7d413d.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="recipe-content">
+            <div class="recipe-header">
+                <div class="recipe-title">Swedish-Inspired Burgers</div>
+                <div class="recipe-meta">
+                    <span>⏱️ Prep: 25 min</span>
+                    <span>🔥 Cook: 25 min</span>
+                    <span>🍽️ Servings: 2</span>
+                </div>
+            </div>
+
+            <div class="quick-ref">
+                <h3>⚡ Quick Reference</h3>
+                <div class="quick-ref-grid">
+                    <div class="quick-ref-item"><strong>From Fridge:</strong> Ground beef, onions, mushrooms</div>
+                    <div class="quick-ref-item"><strong>Cook Fresh:</strong> Burgers, potato coins, mushroom sauce</div>
+                    <div class="quick-ref-item"><strong>Pantry:</strong> Breadcrumbs, spices, cream</div>
+                    <div class="quick-ref-item"><strong>Total Time:</strong> 50 min</div>
+                </div>
+            </div>
+
+            <div class="ingredients-section">
+                <h2 class="section-title">🛒 Ingredients</h2>
+                <ul class="ingredients-list">
+                    <li class="ingredient-item"><span class="ingredient-name">Ground beef</span><span class="ingredient-amount">1 lb</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Breadcrumbs</span><span class="ingredient-amount">1/4 cup</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Egg</span><span class="ingredient-amount">1</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Onion</span><span class="ingredient-amount">1 (half diced, half sliced)</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Mushrooms</span><span class="ingredient-amount">8 oz sliced</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Heavy cream</span><span class="ingredient-amount">1/2 cup</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Beef broth</span><span class="ingredient-amount">1/2 cup</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Dijon mustard</span><span class="ingredient-amount">1 tbsp</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Worcestershire sauce</span><span class="ingredient-amount">1 tbsp</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Baby potatoes</span><span class="ingredient-amount">1 lb</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Sour cream, dill, lemon</span><span class="ingredient-amount">For dilly dip</span></li>
+                    <li class="ingredient-item"><span class="ingredient-name">Spices</span><span class="ingredient-amount">Paprika, allspice, S&P</span></li>
+                </ul>
+            </div>
+
+            <div class="instructions-section">
+                <h2 class="section-title">👨‍🍳 Instructions</h2>
+
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Roast potato coins.</strong> Preheat oven to 425°F. Slice potatoes into 1/4" coins. Toss with olive oil, salt, pepper, paprika. Roast on baking sheet 25-30 min, flipping halfway, until golden and crispy.</div>
+                        <span class="step-time">⏱️ 30 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Form burger patties.</strong> Mix ground beef with breadcrumbs, egg, half the diced onion, garlic, paprika, allspice, salt & pepper. Form into 4 thin patties. (Thinner = more Swedish-style!)</div>
+                        <span class="step-time">⏱️ 10 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Cook burgers.</strong> Heat 1 tbsp olive oil in a large skillet over medium-high. Cook patties 3-4 min per side until browned and cooked through. Remove and keep warm.</div>
+                        <span class="step-time">⏱️ 8 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Make mushroom sauce.</strong> In the same skillet, add butter. Sauté sliced onions and mushrooms until golden (5 min). Add beef broth, cream, Dijon, Worcestershire. Simmer 5 min until thickened. Season with S&P.</div>
+                        <span class="step-time">⏱️ 12 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-text"><strong>Make dilly dip & serve.</strong> Mix sour cream with chopped dill, lemon juice, salt. Serve burgers smothered in mushroom sauce, with potato coins and dilly dip on the side. (Optional: serve on buns)</div>
+                        <span class="step-time">⏱️ 3 min</span>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- THURSDAY -->
+        <div class="recipe-card" id="recipe-2">
+            <div class="recipe-hero" style="background-image: url('salmon-poke-hero-000.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="recipe-content">
+            <div class="recipe-header">
+                <div class="recipe-title">Swicy Poke-Inspired Salmon Bowls</div>
+                <div class="recipe-meta">
+                    <span>⏱️ Prep: 1 min</span>
+                    <span>🔥 Cook: 40 min</span>
+                    <span>🍽️ Servings: 2</span>
+                </div>
+            </div>
+
+            <div class="quick-ref">
+                <h3>⚡ Quick Reference - PREPPED!</h3>
+                <div class="quick-ref-grid">
+                    <div class="quick-ref-item"><strong>From Fridge:</strong> "Thu Salmon Bowl Veggies" container</div>
+                    <div class="quick-ref-item"><strong>Cook Fresh:</strong> Rice (1 cup), Salmon (12 oz)</div>
+                    <div class="quick-ref-item"><strong>Toppings:</strong> Spicy mayo, sweet soy glaze</div>
+                    <div class="quick-ref-item"><strong>Total Time:</strong> 25 min</div>
+                </div>
+            </div>
+
+            <div class="prepped-callout">
+                <strong>✨ PREP SUNDAY:</strong> Your "Thu Salmon Bowl Veggies" container has: radishes, cucumbers, scallions, ginger, slaw, and dressing already mixed!
+            </div>
+
+            <div class="ingredients-section">
+                <h2 class="section-title">🛒 Ingredients</h2>
+                <ul class="ingredients-list">
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Salmon fillets</span>
+                        <span class="ingredient-amount">12 oz (2 fillets)</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">White rice</span>
+                        <span class="ingredient-amount">1 cup dry</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">🟢 Prepped veggie container</span>
+                        <span class="ingredient-amount">From fridge</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Spicy mayo</span>
+                        <span class="ingredient-amount">2-3 tbsp</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Sweet soy glaze</span>
+                        <span class="ingredient-amount">2-3 tbsp</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Sesame seeds</span>
+                        <span class="ingredient-amount">1 tbsp</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="instructions-section">
+                <h2 class="section-title">👨‍🍳 Instructions</h2>
+
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Start rice.</strong> Rinse 1 cup white rice. Cook according to package directions (usually 2 cups water, bring to boil, simmer 15-20 min). Fluff with fork when done.
+                        </div>
+                        <span class="step-time">⏱️ 20 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Marinate salmon.</strong> Pat salmon dry. Mix together sweet soy glaze with a bit of the minced ginger from your prepped container. Brush on salmon. Let sit 10 min.
+                        </div>
+                        <span class="step-time">⏱️ 10 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Sear salmon.</strong> Heat 1 tbsp oil in a large skillet over medium-high. Add salmon skin-side up and cook 4-5 min. Flip and cook another 3-4 min until cooked through and glazed.
+                        </div>
+                        <span class="step-time">⏱️ 8 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Assemble bowls.</strong> Divide rice between 2 bowls. Add salmon. Grab your "Thu Salmon Bowl Veggies" container from the fridge and divide between bowls. Drizzle with spicy mayo and remaining soy glaze. Sprinkle with sesame seeds.
+                        </div>
+                        <span class="step-time">⏱️ 3 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="https://web.archive.org/web/20260210102704/https://www.hellofresh.com/recipecards/card/6889c600276dc73629579c28-en-US.pdf" target="_blank" class="btn btn-secondary">View Original PDF</a>
+            </div>
+            </div>
+        </div>
+
+        <!-- FRIDAY -->
+        <div class="recipe-card" id="recipe-4">
+            <div class="recipe-hero" style="background-image: url('salmon-poke-hero-000.jpg'); background-size: cover; background-position: center;"></div>
+            <div class="recipe-content">
+            <div class="recipe-header">
+                <div class="recipe-title">Swicy Poke-Inspired Tilapia Bowls</div>
+                <div class="recipe-meta">
+                    <span>⏱️ Prep: 1 min</span>
+                    <span>🔥 Cook: 40 min</span>
+                    <span>🍽️ Servings: 2</span>
+                </div>
+            </div>
+
+            <div class="quick-ref">
+                <h3>⚡ Quick Reference - PREPPED!</h3>
+                <div class="quick-ref-grid">
+                    <div class="quick-ref-item"><strong>From Fridge:</strong> "Fri Tilapia Bowl Veggies" container</div>
+                    <div class="quick-ref-item"><strong>Cook Fresh:</strong> Rice (1 cup), Tilapia (frozen)</div>
+                    <div class="quick-ref-item"><strong>Toppings:</strong> Spicy mayo, sweet soy glaze</div>
+                    <div class="quick-ref-item"><strong>Total Time:</strong> 25 min</div>
+                </div>
+            </div>
+
+            <div class="prepped-callout">
+                <strong>✨ PREP SUNDAY:</strong> Your "Fri Tilapia Bowl Veggies" container has: radishes, cucumbers, scallions, ginger, slaw, and dressing already mixed!
+            </div>
+
+            <div class="ingredients-section">
+                <h2 class="section-title">🛒 Ingredients</h2>
+                <ul class="ingredients-list">
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Tilapia fillets (frozen)</span>
+                        <span class="ingredient-amount">12 oz (2 fillets)</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">White rice</span>
+                        <span class="ingredient-amount">1 cup dry</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">🟢 Prepped veggie container</span>
+                        <span class="ingredient-amount">From fridge</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Spicy mayo</span>
+                        <span class="ingredient-amount">2-3 tbsp</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Sweet soy glaze</span>
+                        <span class="ingredient-amount">2-3 tbsp</span>
+                    </li>
+                    <li class="ingredient-item">
+                        <span class="ingredient-name">Sesame seeds</span>
+                        <span class="ingredient-amount">1 tbsp</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="instructions-section">
+                <h2 class="section-title">👨‍🍳 Instructions</h2>
+
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Start rice.</strong> Rinse 1 cup white rice. Cook according to package directions (usually 2 cups water, bring to boil, simmer 15-20 min). Fluff with fork when done.
+                        </div>
+                        <span class="step-time">⏱️ 20 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Prepare tilapia.</strong> Thaw frozen tilapia if needed (run under cool water 5 min). Pat very dry. Season with salt and pepper. Brush with sweet soy glaze mixed with ginger from your prepped container.
+                        </div>
+                        <span class="step-time">⏱️ 10 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Cook tilapia.</strong> Heat 1 tbsp oil in a large skillet over medium-high. Add tilapia and cook 3-4 min per side until golden and flaky. Brush with more glaze while cooking.
+                        </div>
+                        <span class="step-time">⏱️ 8 min</span>
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-text">
+                            <strong>Assemble bowls.</strong> Divide rice between 2 bowls. Add tilapia. Grab your "Fri Tilapia Bowl Veggies" container from the fridge and divide between bowls. Drizzle with spicy mayo and remaining soy glaze. Sprinkle with sesame seeds.
+                        </div>
+                        <span class="step-time">⏱️ 3 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="https://web.archive.org/web/20260214122024/https://www.hellofresh.com/recipecards/card/6889c600276dc73629579c28-en-US.pdf" target="_blank" class="btn btn-secondary">View Original PDF</a>
+            </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print All Recipes</button>
+            <button class="btn btn-secondary" onclick="window.location.href='quick-cook-guide.html'">⚡ View Quick Cook Guide</button>
+            <button class="btn btn-secondary" onclick="window.location.href='meal-prep-guide.html'">🥘 Back to Meal Prep</button>
+        </div>
+    </div>
+
+    <script>
+        function showRecipe(index) {
+            // Hide all recipes
+            document.querySelectorAll('.recipe-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Deactivate all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected recipe
+            document.getElementById(`recipe-${index}`).classList.add('active');
+
+            // Activate selected tab
+            document.querySelectorAll('.tab-btn')[index].classList.add('active');
+        }
+    </script>
+    <script src="meal-planner-nav.js"></script>
+</body>
+</html>

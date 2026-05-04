@@ -1,0 +1,591 @@
+{% extends "base.html" %}
+
+{% block title %}Meal Prep Guide - {{ guide.mealPlanName }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="meal-prep-header">
+        <div>
+            <h1>📋 Meal Prep Guide</h1>
+            <p class="subtitle">{{ guide.mealPlanName }}</p>
+            <p class="prep-date">Prep on: <strong>{{ guide.prepDate[:10] }}</strong> (Sunday)</p>
+        </div>
+
+        <div class="meal-prep-actions no-print">
+            <form class="servings-form" method="GET">
+                <label for="servings">Servings:</label>
+                <select name="servings" id="servings" onchange="this.form.submit()">
+                    {% for i in range(1, 7) %}
+                    <option value="{{ i }}" {% if servings == i %}selected{% endif %}>{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <button onclick="window.print()" class="btn-secondary">🖨️ Print</button>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-number">{{ guide.totalPrepTimeMinutes }}</div>
+            <div class="stat-label">Total Minutes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🍽️</div>
+            <div class="stat-number">{{ guide.totalMeals }}</div>
+            <div class="stat-label">Meals</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-number">{{ guide.servingsPerMeal }}</div>
+            <div class="stat-label">Servings Each</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-number">{{ guide.containerLabels|length }}</div>
+            <div class="stat-label">Containers</div>
+        </div>
+    </div>
+
+    <section class="quick-overview">
+        <h2>Quick Overview</h2>
+        <div class="category-cards">
+            {% for category in guide.categories %}
+            <div class="category-card">
+                <div class="category-icon">{{ category.icon }}</div>
+                <div class="category-info">
+                    <div class="category-name">{{ category.displayName }}</div>
+                    <div class="category-meta">{{ category.items|length }} items &bull; ~{{ category.estimatedMinutes }} min</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="prep-steps">
+        <h2>Step-by-Step Instructions</h2>
+        <div class="steps-list">
+            {% for step in guide.steps %}
+            <div class="step-item {% if step.isPassive %}passive{% endif %}">
+                <div class="step-number">{{ step.stepNumber }}</div>
+                <div class="step-content">
+                    <div class="step-description">{{ step.description }}</div>
+                    <div class="step-meta">
+                        <span class="step-time">⏱️ {{ step.estimatedMinutes }} min</span>
+                        {% if step.isPassive %}
+                        <span class="step-passive-badge">Passive</span>
+                        {% endif %}
+                    </div>
+                    {% if step.parallelSuggestion %}
+                    <div class="parallel-suggestion">
+                        💡 {{ step.parallelSuggestion }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="category-details">
+        <h2>Ingredient Details by Category</h2>
+        {% for category in guide.categories %}
+        <div class="category-section">
+            <h3 class="category-header">
+                {{ category.icon }} {{ category.displayName }}
+                <span class="category-count">({{ category.items|length }} items)</span>
+            </h3>
+            <div class="ingredient-cards">
+                {% for item in category.items %}
+                <div class="ingredient-card">
+                    <div class="ingredient-name">{{ item.name }}</div>
+                    <div class="ingredient-quantity">{{ item.scaledQuantity }}</div>
+                    <div class="ingredient-instructions">{{ item.prepInstructions }}</div>
+                    <div class="ingredient-meta">
+                        <span class="storage-location {% if item.storageLocation == 'Freezer' %}freezer{% else %}fridge{% endif %}">
+                            {{ '❄️' if item.storageLocation == 'Freezer' else '🧊' }} {{ item.storageLocation }}
+                        </span>
+                    </div>
+                    <div class="ingredient-recipes">
+                        Used in: {{ item.usedInRecipes|join(', ') }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+
+    <section class="container-labels">
+        <h2>Container Labels</h2>
+        <p class="labels-instruction no-print">Print this page and cut along the dashed lines to create labels for your meal prep containers.</p>
+        <div class="labels-grid">
+            {% for label in guide.containerLabels %}
+            <div class="label-card">
+                <div class="label-code">{{ label.labelCode }}</div>
+                <div class="label-day">{{ label.dayOfWeek }}</div>
+                <div class="label-meal-type">{{ label.mealType }}</div>
+                <div class="label-recipe">{{ label.recipeName }}</div>
+                <div class="label-servings">{{ label.servings }} servings</div>
+                <div class="label-storage {% if label.storageLocation == 'Freezer' %}freezer{% else %}fridge{% endif %}">
+                    {{ '❄️' if label.storageLocation == 'Freezer' else '🧊' }} {{ label.storageLocation }}
+                </div>
+                <div class="label-reheat">{{ label.reheatingInstructions }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div class="back-button no-print">
+        <a href="/meal-plans/{{ meal_plan_id }}" class="btn">← Back to Meal Plan</a>
+    </div>
+</div>
+
+<style>
+.meal-prep-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.subtitle {
+    font-size: 20px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.prep-date {
+    font-size: 16px;
+    color: #91C13E;
+}
+
+.meal-prep-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.servings-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.servings-form label {
+    font-weight: 600;
+    color: #666;
+}
+
+.servings-form select {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: bold;
+    color: #FF6B35;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 14px;
+}
+
+section {
+    margin-bottom: 50px;
+}
+
+section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #91C13E;
+}
+
+.category-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.category-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.category-icon {
+    font-size: 36px;
+}
+
+.category-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.category-meta {
+    color: #666;
+    font-size: 14px;
+}
+
+.steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.step-item {
+    display: flex;
+    gap: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.step-item.passive {
+    border-left: 4px solid #91C13E;
+    background: #f9fff4;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: #FF6B35;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex-grow: 1;
+}
+
+.step-description {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.step-meta {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.step-time {
+    color: #666;
+    font-size: 14px;
+}
+
+.step-passive-badge {
+    background: #91C13E;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.parallel-suggestion {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff8e1;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #856404;
+}
+
+.category-section {
+    margin-bottom: 30px;
+}
+
+.category-header {
+    background: #333;
+    color: white;
+    padding: 15px 20px;
+    margin: 0 0 15px 0;
+    border-radius: 8px 8px 0 0;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-count {
+    font-size: 14px;
+    font-weight: normal;
+    opacity: 0.8;
+}
+
+.ingredient-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.ingredient-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.ingredient-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-transform: capitalize;
+}
+
+.ingredient-quantity {
+    font-size: 16px;
+    color: #91C13E;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.ingredient-instructions {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.ingredient-meta {
+    margin-bottom: 8px;
+}
+
+.storage-location {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.storage-location.fridge {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.storage-location.freezer {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.ingredient-recipes {
+    font-size: 13px;
+    color: #888;
+}
+
+.labels-instruction {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.labels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.label-card {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    background: white;
+}
+
+.label-code {
+    font-size: 36px;
+    font-weight: bold;
+    color: #FF6B35;
+    margin-bottom: 5px;
+}
+
+.label-day {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.label-meal-type {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.label-recipe {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.label-servings {
+    font-size: 14px;
+    color: #91C13E;
+    margin-bottom: 8px;
+}
+
+.label-storage {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.label-storage.fridge {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.label-storage.freezer {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.label-reheat {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.back-button {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background: #e5e5e5;
+}
+
+.btn-secondary {
+    background: #f5f5f5;
+    color: #333;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #e5e5e5;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+        font-size: 12px;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .meal-prep-header {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
+
+    .stats-grid {
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    .stat-icon {
+        font-size: 20px;
+    }
+
+    .stat-number {
+        font-size: 24px;
+    }
+
+    section {
+        margin-bottom: 30px;
+        page-break-inside: avoid;
+    }
+
+    .step-item, .ingredient-card, .category-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    .category-section {
+        page-break-inside: avoid;
+    }
+
+    .labels-grid {
+        page-break-before: always;
+    }
+
+    .label-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+}
+</style>
+{% endblock %}

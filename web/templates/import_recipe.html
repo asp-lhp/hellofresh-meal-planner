@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+
+{% block title %}Import Recipe from URL - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>📥 Import Recipe from URL</h1>
+    <p class="subtitle">Paste a recipe URL from any of 600+ supported websites</p>
+
+    <!-- URL Input -->
+    <div class="import-form-container">
+        <div class="url-input-section">
+            <input type="url"
+                   id="recipeUrl"
+                   placeholder="https://www.bbcgoodfood.com/recipes/spaghetti-carbonara"
+                   class="url-input">
+            <button onclick="scrapeRecipe()" class="btn-primary" id="scrapeBtn">
+                🔍 Preview Recipe
+            </button>
+        </div>
+
+        <div class="supported-sites-hint">
+            <details>
+                <summary>✅ Supported Sites (600+)</summary>
+                <div class="site-list">
+                    <strong>Most Reliable:</strong> BBC Good Food, Budget Bytes, Simply Recipes, Serious Eats,
+                    Bon Appétit, Epicurious, Taste of Home, AllRecipes, Food Network
+                    <br><br>
+                    <strong>Also Supports:</strong> NYT Cooking, Delish, The Kitchn, Minimalist Baker,
+                    Cookie and Kate, Gimme Some Oven, Sally's Baking Addiction, and 500+ more!
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading-container" style="display:none;">
+        <div class="loading-spinner"></div>
+        <p>Scraping recipe...</p>
+    </div>
+
+    <!-- Recipe Preview -->
+    <div id="recipePreview" class="recipe-preview-container" style="display:none;">
+        <div class="preview-header">
+            <h2>📋 Recipe Preview</h2>
+            <p>Review the scraped data before importing</p>
+        </div>
+
+        <div class="preview-content">
+            <div class="preview-image-section" id="previewImageSection">
+                <img id="previewImage" src="" alt="Recipe" class="preview-image">
+            </div>
+
+            <div class="preview-details">
+                <h3 id="previewName">Recipe Name</h3>
+                <p id="previewDescription" class="preview-description"></p>
+
+                <div class="preview-meta">
+                    <div class="meta-item" id="previewTime">
+                        <span class="meta-label">Total Time:</span>
+                        <span class="meta-value" id="previewTimeValue">-</span>
+                    </div>
+                    <div class="meta-item" id="previewYields">
+                        <span class="meta-label">Servings:</span>
+                        <span class="meta-value" id="previewYieldsValue">-</span>
+                    </div>
+                    <div class="meta-item" id="previewCategory">
+                        <span class="meta-label">Category:</span>
+                        <span class="meta-value" id="previewCategoryValue">-</span>
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <h4>🛒 Ingredients (<span id="ingredientCount">0</span>)</h4>
+                    <ul id="previewIngredients" class="ingredient-list"></ul>
+                </div>
+
+                <div class="preview-section">
+                    <h4>👨‍🍳 Instructions</h4>
+                    <div id="previewInstructions" class="instructions-preview"></div>
+                </div>
+
+                <div class="import-actions">
+                    <button onclick="importRecipe()" class="btn-primary btn-large" id="importBtn">
+                        ✅ Import to Database
+                    </button>
+                    <button onclick="resetForm()" class="btn-secondary">
+                        ← Try Another URL
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message" style="display:none;">
+        <p id="errorText"></p>
+        <button onclick="resetForm()" class="btn-secondary">Try Again</button>
+    </div>
+
+    <div class="back-button">
+        <a href="/admin/pending-deletions" class="btn">← Back to Admin</a>
+    </div>
+</div>
+
+<style>
+.import-form-container {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.url-input-section {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.url-input {
+    flex: 1;
+    padding: 15px 20px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.url-input:focus {
+    outline: none;
+    border-color: #91C13E;
+}
+
+.supported-sites-hint details {
+    margin-top: 10px;
+}
+
+.supported-sites-hint summary {
+    cursor: pointer;
+    color: #666;
+    font-size: 14px;
+}
+
+.site-list {
+    margin-top: 10px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.loading-container {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #91C13E;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.recipe-preview-container {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.preview-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.preview-header h2 {
+    margin-bottom: 5px;
+}
+
+.preview-header p {
+    color: #666;
+    margin: 0;
+}
+
+.preview-content {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+}
+
+.preview-image {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.preview-details h3 {
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.preview-description {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.preview-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.meta-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.preview-section {
+    margin-bottom: 30px;
+}
+
+.preview-section h4 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.ingredient-list {
+    list-style-position: inside;
+    line-height: 1.8;
+    color: #333;
+}
+
+.instructions-preview {
+    line-height: 1.8;
+    color: #333;
+    white-space: pre-wrap;
+}
+
+.import-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+}
+
+.btn-primary {
+    background: #91C13E;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #7DAD2E;
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-large {
+    padding: 15px 40px;
+    font-size: 18px;
+}
+
+.btn-secondary {
+    background: #f5f5f5;
+    color: #333;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #e5e5e5;
+}
+
+.error-message {
+    background: #ffebee;
+    border-left: 4px solid #f44336;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.error-message p {
+    color: #c62828;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .preview-content {
+        grid-template-columns: 1fr;
+    }
+
+    .url-input-section {
+        flex-direction: column;
+    }
+
+    .import-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+let currentRecipeData = null;
+
+async function scrapeRecipe() {
+    const url = document.getElementById('recipeUrl').value.trim();
+
+    if (!url) {
+        alert('Please enter a recipe URL');
+        return;
+    }
+
+    if (!url.startsWith('http')) {
+        alert('Please enter a valid URL starting with http:// or https://');
+        return;
+    }
+
+    // Show loading
+    document.getElementById('import-form-container');
+    document.getElementById('loadingIndicator').style.display = 'block';
+    document.getElementById('recipePreview').style.display = 'none';
+    document.getElementById('errorMessage').style.display = 'none';
+    document.getElementById('scrapeBtn').disabled = true;
+    document.getElementById('scrapeBtn').textContent = 'Scraping...';
+
+    try {
+        const response = await fetch('/admin/import-recipe/scrape', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: url })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            currentRecipeData = data.recipe;
+            displayRecipePreview(data.recipe);
+        } else {
+            showError(data.error || 'Failed to scrape recipe');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Network error. Please try again.');
+    } finally {
+        document.getElementById('loadingIndicator').style.display = 'none';
+        document.getElementById('scrapeBtn').disabled = false;
+        document.getElementById('scrapeBtn').textContent = '🔍 Preview Recipe';
+    }
+}
+
+function displayRecipePreview(recipe) {
+    // Show preview container
+    document.getElementById('recipePreview').style.display = 'block';
+
+    // Set image
+    if (recipe.image_url) {
+        document.getElementById('previewImage').src = recipe.image_url;
+        document.getElementById('previewImageSection').style.display = 'block';
+    } else {
+        document.getElementById('previewImageSection').style.display = 'none';
+    }
+
+    // Set basic info
+    document.getElementById('previewName').textContent = recipe.name || 'Unknown Recipe';
+    document.getElementById('previewDescription').textContent = recipe.description || 'No description available';
+
+    // Set metadata
+    document.getElementById('previewTimeValue').textContent = recipe.total_time ? `${recipe.total_time} min` : 'N/A';
+    document.getElementById('previewYieldsValue').textContent = recipe.yields || 'N/A';
+    document.getElementById('previewCategoryValue').textContent = recipe.category || recipe.cuisine || 'N/A';
+
+    // Set ingredients
+    const ingredientsList = document.getElementById('previewIngredients');
+    ingredientsList.innerHTML = '';
+    const ingredients = recipe.ingredients || [];
+    document.getElementById('ingredientCount').textContent = ingredients.length;
+    ingredients.forEach(ing => {
+        const li = document.createElement('li');
+        li.textContent = ing;
+        ingredientsList.appendChild(li);
+    });
+
+    // Set instructions
+    const instructionsDiv = document.getElementById('previewInstructions');
+    let instructions = recipe.instructions || 'No instructions available';
+    if (Array.isArray(instructions)) {
+        instructions = instructions.join('\n\n');
+    }
+    instructionsDiv.textContent = instructions;
+
+    // Scroll to preview
+    document.getElementById('recipePreview').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function importRecipe() {
+    if (!currentRecipeData) {
+        alert('No recipe data to import');
+        return;
+    }
+
+    const importBtn = document.getElementById('importBtn');
+    importBtn.disabled = true;
+    importBtn.textContent = 'Importing...';
+
+    try {
+        const response = await fetch('/admin/import-recipe/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: currentRecipeData.url })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Redirect to AI tagging for the newly imported recipe
+            window.location.href = '/admin/ai-tagging';
+        } else {
+            alert('❌ Failed to import recipe: ' + (data.error || 'Unknown error'));
+            importBtn.disabled = false;
+            importBtn.textContent = '✅ Import to Database';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Network error. Please try again.');
+        importBtn.disabled = false;
+        importBtn.textContent = '✅ Import to Database';
+    }
+}
+
+function showError(message) {
+    document.getElementById('errorText').textContent = message;
+    document.getElementById('errorMessage').style.display = 'block';
+    document.getElementById('recipePreview').style.display = 'none';
+}
+
+function resetForm() {
+    document.getElementById('recipeUrl').value = '';
+    document.getElementById('recipePreview').style.display = 'none';
+    document.getElementById('errorMessage').style.display = 'none';
+    currentRecipeData = null;
+}
+
+// Allow Enter key to scrape
+document.getElementById('recipeUrl').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        scrapeRecipe();
+    }
+});
+</script>
+{% endblock %}

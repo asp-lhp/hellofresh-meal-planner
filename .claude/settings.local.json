@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__linear__list_issues",
+      "mcp__linear__list_projects",
+      "mcp__linear__get_issue",
+      "mcp__linear__save_issue",
+      "Bash(pkill -f \"flask run\")",
+      "Bash(curl -s -I http://localhost:5001/auth/login)",
+      "Bash(python run_migrations.py)",
+      "Bash(sqlite3 *)",
+      "WebFetch(domain:developer.kroger.com)",
+      "WebFetch(domain:www.postman.com)",
+      "Bash(curl -s http://localhost:5001)",
+      "mcp__linear__list_teams"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "publish-mcp"
+  ]
+}

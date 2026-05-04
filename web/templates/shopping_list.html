@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping List - {{ shopping_list.mealPlanName }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="shopping-list-header">
+        <div>
+            <h1>🛒 Shopping List</h1>
+            <p class="subtitle">{{ shopping_list.mealPlanName }}</p>
+            <p class="total-items">{{ shopping_list.totalItems }} items</p>
+        </div>
+
+        <div class="shopping-list-actions">
+            <button onclick="window.print()" class="btn-secondary no-print">🖨️ Print</button>
+        </div>
+    </div>
+
+    <!-- Shopping List by Aisle -->
+    {% for aisle in shopping_list.aisles %}
+    <div class="aisle-section">
+        <h2 class="aisle-header">
+            {{ aisle.aisleName|upper }}
+            <span class="aisle-count">({{ aisle.items|length }} items)</span>
+        </h2>
+
+        <div class="shopping-items">
+            {% for item in aisle.items %}
+            <div class="shopping-item {% if item.isBulkItem %}bulk-item{% endif %}">
+                <input type="checkbox" class="item-checkbox" data-item-id="{{ item.id }}">
+
+                <div class="item-details">
+                    <div class="item-name">{{ item.itemName }}</div>
+
+                    <div class="item-meta">
+                        {% if item.quantity %}
+                        <span class="quantity">{{ item.quantity }}{% if item.unit %} {{ item.unit }}{% endif %}</span>
+                        {% endif %}
+
+                        {% if item.usedInRecipes %}
+                        <span class="used-in">
+                            Used in: {{ item.usedInRecipes|join(', ') }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if item.isBulkItem and item.bulkItemNote %}
+                    <div class="bulk-warning">
+                        ⚠️ {{ item.bulkItemNote }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="back-button no-print">
+        <a href="/meal-plans/{{ meal_plan_id }}" class="btn">← Back to Meal Plan</a>
+    </div>
+</div>
+
+<style>
+.shopping-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.total-items {
+    font-size: 18px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.shopping-list-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-secondary {
+    background: #f5f5f5;
+    color: #333;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #e5e5e5;
+}
+
+.btn-primary {
+    background: #91C13E;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #7DAD2E;
+}
+
+.aisle-section {
+    margin-bottom: 40px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.aisle-header {
+    background: #333;
+    color: white;
+    padding: 15px 20px;
+    margin: 0;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.aisle-count {
+    font-size: 14px;
+    font-weight: normal;
+    opacity: 0.8;
+}
+
+.shopping-items {
+    padding: 10px;
+}
+
+.shopping-item {
+    display: flex;
+    align-items: start;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.shopping-item:last-child {
+    border-bottom: none;
+}
+
+.shopping-item:hover {
+    background: #f9f9f9;
+}
+
+.shopping-item.bulk-item {
+    background: #fff9e6;
+}
+
+.item-checkbox {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    margin-top: 2px;
+}
+
+.item-details {
+    flex-grow: 1;
+}
+
+.item-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-transform: capitalize;
+}
+
+.item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+.quantity {
+    font-weight: 600;
+    color: #91C13E;
+}
+
+.used-in {
+    font-style: italic;
+}
+
+.bulk-warning {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff3cd;
+    border-left: 3px solid #ffc107;
+    font-size: 14px;
+    color: #856404;
+}
+
+.back-button {
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .aisle-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    body {
+        background: white;
+    }
+
+    .item-checkbox {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #333;
+        border-radius: 3px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle checkbox persistence (localStorage)
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+
+    checkboxes.forEach(checkbox => {
+        const itemId = checkbox.dataset.itemId;
+        const savedState = localStorage.getItem(`shopping-item-${itemId}`);
+
+        if (savedState === 'checked') {
+            checkbox.checked = true;
+            checkbox.closest('.shopping-item').style.opacity = '0.5';
+        }
+
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                localStorage.setItem(`shopping-item-${itemId}`, 'checked');
+                this.closest('.shopping-item').style.opacity = '0.5';
+            } else {
+                localStorage.removeItem(`shopping-item-${itemId}`);
+                this.closest('.shopping-item').style.opacity = '1';
+            }
+        });
+    });
+
+});
+</script>
+{% endblock %}

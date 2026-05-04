@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Shopping List - Mon-Fri</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 { color: #764ba2; margin-bottom: 10px; font-size: 36px; }
+        .warning {
+            background: #FFF3CD;
+            border-left: 4px solid #FFC107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning h3 { color: #856404; margin-bottom: 10px; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+        .stat-card.purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card.green { background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%); }
+        .stat-card.orange { background: linear-gradient(135deg, #FF9800 0%, #FFA726 100%); }
+        .stat-value { font-size: 32px; font-weight: bold; }
+        .stat-label { font-size: 12px; opacity: 0.9; margin-top: 5px; }
+        .legend {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 2px solid #ddd;
+        }
+        .legend-box.already-have { background: #e8f5e9; }
+        .legend-box.in-cart { background: #fff3e0; text-decoration: line-through; }
+        .category {
+            margin: 30px 0;
+        }
+        .category-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 10px;
+        }
+        .item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .item.already-have {
+            background: #e8f5e9;
+            opacity: 0.6;
+        }
+        .item.in-cart {
+            background: #fff3e0;
+            opacity: 0.7;
+        }
+        .item.in-cart .item-name {
+            text-decoration: line-through;
+        }
+        .item-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: center;
+        }
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .checkbox-have {
+            accent-color: #4CAF50;
+        }
+        .checkbox-cart {
+            accent-color: #FF9800;
+        }
+        .checkbox-label {
+            font-size: 10px;
+            color: #666;
+            font-weight: 600;
+        }
+        .item-details {
+            flex: 1;
+        }
+        .item-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        .item-amount {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .item-meals {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            margin-top: 3px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        @media print {
+            .stats, .legend, .actions, .warning { display: none; }
+            .item-controls { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 Shopping List (Mon-Fri)</h1>
+        <p style="color: #666; margin-bottom: 20px;">Complete Ingredients • Mark what you have!</p>
+
+        <div class="warning">
+            <h3>📝 How to Use This List</h3>
+            <p><strong>"Have"</strong> checkbox: Items you already have at home (pantry staples, etc.)<br>
+            <strong>"Cart"</strong> checkbox: Items you've added to your shopping cart</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card purple">
+                <div class="stat-value" id="total">0</div>
+                <div class="stat-label">Total Items</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-value" id="already-have">0</div>
+                <div class="stat-label">Already Have</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-value" id="need-to-buy">0</div>
+                <div class="stat-label">Need to Buy</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box already-have"></div>
+                <span><strong>Green:</strong> Already Have (skip in store)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box in-cart"></div>
+                <span><strong>Orange:</strong> In Cart (checking off as you shop)</span>
+            </div>
+        </div>
+
+        <div id="shopping-list"></div>
+
+        <div class="actions" style="text-align: center; margin-top: 30px;">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print List</button>
+            <button class="btn" style="background: #f5f5f5; color: #333;" onclick="resetAll()">↺ Reset All</button>
+        </div>
+    </div>
+
+    <script>
+        const groceryData = {
+            "Proteins & Dairy": [
+                {name: "Ground Beef", amount: "2 lbs total", meals: "Tue: Taco Mac, Wed: Burgers"},
+                {name: "Salmon Fillets", amount: "12 oz (2 fillets)", meals: "Wed: Salmon Bowls"},
+                {name: "Tilapia Fillets (frozen)", amount: "12 oz (2 fillets)", meals: "Fri: Tilapia Bowls"},
+                {name: "Fresh Mozzarella", amount: "8 oz", meals: "Mon: Cauliflower Bites"},
+                {name: "Haloumi Cheese", amount: "7 oz package", meals: "Mon: Salad"},
+                {name: "Cheddar Cheese (shredded)", amount: "1-1.5 cups", meals: "Tue: Taco Mac"},
+                {name: "Greek Yogurt (plain)", amount: "1/2 cup", meals: "Mon: Yogurt dressing"},
+                {name: "Sour Cream", amount: "1 container (16 oz)", meals: "Tue: Taco Mac, Thu: Dilly dip"},
+                {name: "Heavy Cream", amount: "1/2 cup", meals: "Thu: Mushroom sauce"},
+                {name: "Eggs", amount: "3", meals: "Mon: Breading, Thu: Burger binding"},
+                {name: "Butter", amount: "2 tbsp", meals: "Thu: Potatoes"}
+            ],
+            "Fresh Vegetables": [
+                {name: "Cauliflower", amount: "1 head (2 lbs)", meals: "Mon: Cauliflower bites"},
+                {name: "Baby Potatoes", amount: "2 lbs total", meals: "Mon: Smashed, Thu: Coins"},
+                {name: "Mixed Salad Greens", amount: "4 cups (1 bag)", meals: "Mon: Salad base"},
+                {name: "Cherry Tomatoes", amount: "1 cup", meals: "Mon: Salad"},
+                {name: "Cucumber", amount: "1 large", meals: "Mon: Salad"},
+                {name: "Mini/Persian Cucumbers", amount: "1 package (4-6)", meals: "Wed & Fri: Poke bowls"},
+                {name: "Bell Pepper (any color)", amount: "1 large", meals: "Tue: Taco Mac"},
+                {name: "Roma Tomato", amount: "1 large", meals: "Tue: Taco Mac"},
+                {name: "Onions (yellow)", amount: "2", meals: "Thu: Burgers"},
+                {name: "Mushrooms", amount: "8 oz", meals: "Thu: Mushroom sauce"},
+                {name: "Radishes", amount: "1 bunch", meals: "Wed & Fri: Poke bowls"},
+                {name: "Scallions/Green Onions", amount: "2 bunches", meals: "Tue: Taco Mac, Wed & Fri: Poke bowls"},
+                {name: "Fresh Ginger", amount: "1 piece (3-4\")", meals: "Wed & Fri: Poke bowls"},
+                {name: "Garlic", amount: "1 bulb (8-10 cloves)", meals: "All meals"},
+                {name: "Lemon", amount: "1", meals: "Mon: Yogurt, Thu: Dilly dip"},
+                {name: "Limes", amount: "4", meals: "Wed & Fri: Poke bowls"},
+                {name: "Fresh Dill", amount: "1 bunch", meals: "Mon: Salad, Thu: Dilly dip"},
+                {name: "Coleslaw Mix (red cabbage)", amount: "1 bag (14-16 oz)", meals: "Wed & Fri: Poke bowls"}
+            ],
+            "Pantry, Grains & Bread": [
+                {name: "Cavatappi or Elbow Pasta", amount: "8 oz box", meals: "Tue: Taco Mac"},
+                {name: "White Rice (long grain)", amount: "2 cups dry", meals: "Wed & Fri: Poke bowls"},
+                {name: "Panko Breadcrumbs", amount: "1 cup", meals: "Mon: Cauliflower, Thu: Burgers"},
+                {name: "Burger Buns", amount: "4", meals: "Thu: Burgers (optional)"},
+                {name: "Olive Oil", amount: "1/2 cup", meals: "All cooking"},
+                {name: "Vegetable Oil", amount: "For frying", meals: "Mon: Frying cauliflower"}
+            ],
+            "Sauces, Spices & Condiments": [
+                {name: "Tomato Sauce", amount: "1 can (8 oz)", meals: "Tue: Taco Mac"},
+                {name: "Taco Seasoning", amount: "2-3 tbsp", meals: "Tue: Taco Mac"},
+                {name: "Hot Sauce", amount: "1 bottle", meals: "Mon: Salad, Tue: Taco Mac"},
+                {name: "Beef Broth", amount: "1/2 cup", meals: "Thu: Mushroom sauce"},
+                {name: "Dijon Mustard", amount: "1 tbsp", meals: "Thu: Mushroom sauce"},
+                {name: "Worcestershire Sauce", amount: "1 tbsp", meals: "Thu: Burgers"},
+                {name: "Spicy Mayo", amount: "1 bottle", meals: "Wed & Fri: Poke bowls"},
+                {name: "Sweet Soy Glaze / Teriyaki", amount: "1 bottle", meals: "Wed & Fri: Poke bowls"},
+                {name: "Rice Wine Vinegar", amount: "3-4 tbsp", meals: "Wed & Fri: Poke dressing"},
+                {name: "Sesame Seeds", amount: "2-3 tbsp", meals: "Wed & Fri: Poke bowls"},
+                {name: "Sugar", amount: "1/4 cup", meals: "Wed & Fri: Poke dressing"},
+                {name: "Salt & Black Pepper", amount: "For cooking", meals: "All meals"},
+                {name: "Paprika", amount: "1 tsp", meals: "Thu: Burgers"},
+                {name: "Allspice or Nutmeg", amount: "1/4 tsp", meals: "Thu: Swedish burgers"}
+            ]
+        };
+
+        let itemIndex = 0;
+
+        function renderList() {
+            const container = document.getElementById('shopping-list');
+            container.innerHTML = '';
+
+            Object.keys(groceryData).forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'category-title';
+                titleDiv.textContent = getCategoryIcon(category) + ' ' + category;
+                categoryDiv.appendChild(titleDiv);
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'items-grid';
+
+                groceryData[category].forEach(item => {
+                    const currentIndex = itemIndex++;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item';
+                    itemDiv.id = `item-${currentIndex}`;
+
+                    itemDiv.innerHTML = `
+                        <div class="item-controls">
+                            <input type="checkbox" class="checkbox checkbox-have" data-index="${currentIndex}" onchange="updateItem(${currentIndex}, 'have')">
+                            <div class="checkbox-label">Have</div>
+                        </div>
+                        <div class="item-controls">
+                            <input type="checkbox" class="checkbox checkbox-cart" data-index="${currentIndex}" onchange="updateItem(${currentIndex}, 'cart')">
+                            <div class="checkbox-label">Cart</div>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-amount">${item.amount}</div>
+                            <div class="item-meals">${item.meals}</div>
+                        </div>
+                    `;
+
+                    // Restore state
+                    const haveChecked = localStorage.getItem(`have-${currentIndex}`) === 'true';
+                    const cartChecked = localStorage.getItem(`cart-${currentIndex}`) === 'true';
+
+                    if (haveChecked) {
+                        itemDiv.classList.add('already-have');
+                        itemDiv.querySelector('.checkbox-have').checked = true;
+                    }
+                    if (cartChecked) {
+                        itemDiv.classList.add('in-cart');
+                        itemDiv.querySelector('.checkbox-cart').checked = true;
+                    }
+
+                    gridDiv.appendChild(itemDiv);
+                });
+
+                categoryDiv.appendChild(gridDiv);
+                container.appendChild(categoryDiv);
+            });
+
+            updateStats();
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                "Proteins & Dairy": "🥩",
+                "Fresh Vegetables": "🥬",
+                "Pantry, Grains & Bread": "🍝",
+                "Sauces, Spices & Condiments": "🥫"
+            };
+            return icons[category] || "📦";
+        }
+
+        function updateItem(index, type) {
+            const itemDiv = document.getElementById(`item-${index}`);
+            const haveCheckbox = itemDiv.querySelector('.checkbox-have');
+            const cartCheckbox = itemDiv.querySelector('.checkbox-cart');
+
+            if (type === 'have') {
+                localStorage.setItem(`have-${index}`, haveCheckbox.checked);
+                if (haveCheckbox.checked) {
+                    itemDiv.classList.add('already-have');
+                    // If you already have it, uncheck cart
+                    cartCheckbox.checked = false;
+                    localStorage.setItem(`cart-${index}`, false);
+                    itemDiv.classList.remove('in-cart');
+                } else {
+                    itemDiv.classList.remove('already-have');
+                }
+            } else if (type === 'cart') {
+                localStorage.setItem(`cart-${index}`, cartCheckbox.checked);
+                if (cartCheckbox.checked) {
+                    itemDiv.classList.add('in-cart');
+                    // If it's in cart, uncheck have
+                    haveCheckbox.checked = false;
+                    localStorage.setItem(`have-${index}`, false);
+                    itemDiv.classList.remove('already-have');
+                } else {
+                    itemDiv.classList.remove('in-cart');
+                }
+            }
+
+            updateStats();
+        }
+
+        function updateStats() {
+            let totalCount = 0;
+            let haveCount = 0;
+            let needCount = 0;
+
+            Object.values(groceryData).forEach(category => {
+                category.forEach((_, i) => {
+                    totalCount++;
+                });
+            });
+
+            for (let i = 0; i < totalCount; i++) {
+                const have = localStorage.getItem(`have-${i}`) === 'true';
+                const cart = localStorage.getItem(`cart-${i}`) === 'true';
+
+                if (have) haveCount++;
+                if (!have && !cart) needCount++;
+            }
+
+            document.getElementById('total').textContent = totalCount;
+            document.getElementById('already-have').textContent = haveCount;
+            document.getElementById('need-to-buy').textContent = needCount;
+        }
+
+        function resetAll() {
+            if (confirm('Reset all checkboxes?')) {
+                localStorage.clear();
+                itemIndex = 0;
+                renderList();
+            }
+        }
+
+        // Initialize
+        renderList();
+    </script>
+    <script src="meal-planner-nav.js"></script>
+</body>
+</html>

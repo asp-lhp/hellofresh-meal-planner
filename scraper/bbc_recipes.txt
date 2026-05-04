@@ -1,0 +1,47 @@
+# BBC Good Food - Reliable recipe source
+# All of these URLs work with recipe-scrapers
+
+# Popular Classics
+https://www.bbcgoodfood.com/recipes/spaghetti-carbonara-recipe
+https://www.bbcgoodfood.com/recipes/ultimate-spaghetti-carbonara-recipe
+https://www.bbcgoodfood.com/recipes/ultimate-makeover-chicken-caesar-salad
+https://www.bbcgoodfood.com/recipes/chicken-fajitas-recipe
+https://www.bbcgoodfood.com/recipes/cheat-fish-pie
+https://www.bbcgoodfood.com/recipes/shepherds-pie
+
+# Asian Inspired
+https://www.bbcgoodfood.com/recipes/pad-thai
+https://www.bbcgoodfood.com/recipes/teriyaki-salmon
+https://www.bbcgoodfood.com/recipes/easy-chicken-stir-fry
+https://www.bbcgoodfood.com/recipes/sweet-sour-chicken
+https://www.bbcgoodfood.com/recipes/thai-red-curry
+
+# Italian
+https://www.bbcgoodfood.com/recipes/pizza-margherita-in-4-easy-steps
+https://www.bbcgoodfood.com/recipes/next-level-spaghetti-meatballs
+https://www.bbcgoodfood.com/recipes/chicken-parmigiana
+https://www.bbcgoodfood.com/recipes/risotto-primavera
+
+# Mexican
+https://www.bbcgoodfood.com/recipes/simple-beef-tacos
+https://www.bbcgoodfood.com/recipes/burrito-bowl
+https://www.bbcgoodfood.com/recipes/quesadilla-recipe
+https://www.bbcgoodfood.com/recipes/classic-beef-fajitas
+
+# Quick & Easy
+https://www.bbcgoodfood.com/recipes/one-pan-egg-hash
+https://www.bbcgoodfood.com/recipes/quick-chicken-noodle-soup
+https://www.bbcgoodfood.com/recipes/speedy-singapore-noodles
+https://www.bbcgoodfood.com/recipes/easy-tuna-pasta-bake
+
+# Healthy Options
+https://www.bbcgoodfood.com/recipes/healthy-salmon-brown-rice-bowl
+https://www.bbcgoodfood.com/recipes/greek-chicken-traybake
+https://www.bbcgoodfood.com/recipes/rainbow-buddha-bowl
+
+# Comfort Food
+https://www.bbcgoodfood.com/recipes/mac-cheese
+https://www.bbcgoodfood.com/recipes/best-ever-beef-stew
+https://www.bbcgoodfood.com/recipes/roast-chicken-dinner
+https://www.bbcgoodfood.com/recipes/pork-chops-creamy-mustard-sauce
+https://www.bbcgoodfood.com/recipes/slow-cooker-pulled-pork

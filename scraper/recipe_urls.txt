@@ -1,0 +1,28 @@
+# Recipe URLs for batch import
+# One URL per line
+# Lines starting with # are ignored
+
+# BBC Good Food (works well)
+https://www.bbcgoodfood.com/recipes/spaghetti-bolognese-recipe
+https://www.bbcgoodfood.com/recipes/classic-lasagne
+https://www.bbcgoodfood.com/recipes/chicken-tikka-masala
+https://www.bbcgoodfood.com/recipes/best-ever-chicken-fried-rice
+https://www.bbcgoodfood.com/recipes/thai-green-curry
+
+# Budget Bytes (scraper-friendly)
+https://www.budgetbytes.com/wp-json/mv-create/v1/creations/219
+https://www.budgetbytes.com/easy-fried-rice/
+https://www.budgetbytes.com/slow-cooker-chicken-tikka-masala/
+
+# Serious Eats (high quality)
+https://www.seriouseats.com/the-best-classic-sausage-lasagna-recipe
+https://www.seriouseats.com/the-food-lab-chicken-teriyaki-recipe
+
+# Simply Recipes
+https://www.simplyrecipes.com/recipes/tacos/
+https://www.simplyrecipes.com/recipes/fried_rice/
+https://www.simplyrecipes.com/recipes/chicken_parmesan/
+
+# Food Network (may work)
+https://www.foodnetwork.com/recipes/ree-drummond/lasagna-recipe-1916517
+https://www.foodnetwork.com/recipes/alton-brown/perfect-hamburger-recipe-1947032

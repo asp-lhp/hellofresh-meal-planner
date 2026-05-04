@@ -1,0 +1,645 @@
+/* ==========================================================================
+   Meal Planner - HelloFresh-inspired Recipe Cards
+   ========================================================================== */
+
+/* Variables */
+:root {
+    --primary-color: #91C13E;
+    --secondary-color: #FF6633;
+    --text-dark: #2C2C2C;
+    --text-light: #666;
+    --border-color: #E5E5E5;
+    --background: #FAFAFA;
+    --white: #FFFFFF;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --radius: 8px;
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text-dark);
+    background: var(--background);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navigation */
+.navbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.nav-links a {
+    margin-left: 2rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: var(--primary-color);
+}
+
+/* Recipe Grid (Homepage) */
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.recipe-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: var(--text-dark);
+}
+
+.recipe-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.recipe-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.recipe-image-placeholder {
+    width: 100%;
+    height: 200px;
+    background: var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.recipe-info {
+    padding: 1.5rem;
+}
+
+.recipe-info h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.description {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.recipe-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.meta-item {
+    padding: 0.25rem 0.75rem;
+    background: var(--background);
+    border-radius: 20px;
+    color: var(--text-light);
+}
+
+.difficulty-easy { background: #E8F5E9; color: #2E7D32; }
+.difficulty-medium { background: #FFF3E0; color: #EF6C00; }
+
+/* Recipe Tags (HelloFresh style) */
+.recipe-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.recipe-tag {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+/* Tag color variations */
+.difficulty-tag {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.quick-tag {
+    background: #E3F2FD;
+    color: #1565C0;
+}
+
+.prep-tag {
+    background: #F3E5F5;
+    color: #6A1B9A;
+}
+
+.protein-tag {
+    background: #FFF3E0;
+    color: #E65100;
+}
+
+.cuisine-tag {
+    background: #F5F5F5;
+    color: #424242;
+    border: 1px solid #E0E0E0;
+}
+
+/* Time and servings badges */
+.time-badge {
+    background: white;
+    border: 1px solid #E0E0E0;
+    color: #424242;
+}
+
+.servings-badge {
+    background: white;
+    border: 1px solid #E0E0E0;
+    color: #424242;
+    font-weight: 600;
+}
+.difficulty-hard { background: #FFEBEE; color: #C62828; }
+
+/* Recipe Card Full View (HelloFresh Style) */
+.recipe-card-full {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+}
+
+.print-button {
+    float: right;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.print-button:hover {
+    background: #7DAD2E;
+}
+
+.delete-button {
+    float: right;
+    padding: 0.75rem 1.5rem;
+    background: #f44336;
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    margin-right: 0.5rem;
+}
+
+.delete-button:hover {
+    background: #da190b;
+}
+
+.hero-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+}
+
+.recipe-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.recipe-description {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+/* Recipe Stats */
+.recipe-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--background);
+    border-radius: var(--radius);
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+/* Nutrition Info */
+.nutrition-info {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #F1F8E9;
+    border-radius: var(--radius);
+}
+
+.nutrition-info h3 {
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+.nutrition-item {
+    text-align: center;
+}
+
+.nutrition-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.nutrition-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2E7D32;
+}
+
+/* Tags & Allergens */
+.tags-allergens {
+    margin-bottom: 2rem;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.tag {
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: var(--white);
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.allergens {
+    padding: 1rem;
+    background: #FFF3E0;
+    border-left: 4px solid var(--secondary-color);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+}
+
+.allergen {
+    margin-left: 0.5rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+/* Ingredients Section */
+.ingredients-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.ingredients-section h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.ingredients-list {
+    list-style: none;
+}
+
+.ingredient-item {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--background);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ingredient-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.ingredient-text {
+    flex: 1;
+    font-size: 1rem;
+}
+
+.ingredient-text strong {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+/* Instructions Section */
+.instructions-section {
+    margin-bottom: 2rem;
+}
+
+.instructions-section h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.instructions-list {
+    list-style: none;
+    counter-reset: step-counter;
+}
+
+.instruction-step {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    counter-increment: step-counter;
+}
+
+.step-number {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+
+.step-image {
+    width: 100%;
+    max-width: 400px;
+    border-radius: var(--radius);
+    margin-top: 0.5rem;
+}
+
+/* Recipe Source */
+.recipe-source {
+    padding: 1rem;
+    background: var(--background);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.recipe-source a {
+    color: var(--primary-color);
+    word-break: break-all;
+}
+
+/* Back Button */
+.back-button {
+    margin-top: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--text-dark);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: var(--radius);
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background: #000;
+}
+
+/* Footer */
+footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--text-light);
+}
+
+/* ==========================================================================
+   Print Styles - Clean, HelloFresh-inspired
+   ========================================================================== */
+
+@media print {
+    /* Hide non-essential elements */
+    .no-print,
+    .navbar,
+    .print-button,
+    .back-button,
+    .recipe-source,
+    footer {
+        display: none !important;
+    }
+
+    /* Reset page styles */
+    body {
+        background: white;
+        color: black;
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+
+    .recipe-card-full {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    /* Optimize images for print */
+    .hero-image {
+        height: 300px;
+        page-break-after: avoid;
+    }
+
+    .step-image {
+        max-width: 300px;
+        page-break-inside: avoid;
+    }
+
+    /* Better typography */
+    .recipe-title {
+        font-size: 24pt;
+        margin-bottom: 0.5rem;
+    }
+
+    .recipe-description {
+        font-size: 11pt;
+    }
+
+    h2 {
+        font-size: 16pt;
+        margin-top: 1rem;
+        page-break-after: avoid;
+    }
+
+    /* Compact stats */
+    .recipe-stats {
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+    }
+
+    .stat-label {
+        font-size: 9pt;
+    }
+
+    .stat-value {
+        font-size: 11pt;
+    }
+
+    /* Compact nutrition */
+    .nutrition-info {
+        padding: 0.5rem;
+        background: #f5f5f5;
+    }
+
+    /* Prevent page breaks inside steps */
+    .instruction-step {
+        page-break-inside: avoid;
+    }
+
+    .ingredient-item {
+        page-break-inside: avoid;
+    }
+
+    /* Ensure sections stay together */
+    .ingredients-section,
+    .instructions-section {
+        page-break-inside: avoid;
+    }
+
+    /* Remove colors for better print economy */
+    .tag {
+        background: #eee;
+        color: black;
+        border: 1px solid #ccc;
+    }
+
+    .step-number {
+        background: black;
+        color: white;
+    }
+
+    /* Links */
+    a {
+        color: black;
+        text-decoration: none;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .recipe-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recipe-title {
+        font-size: 2rem;
+    }
+
+    .hero-image {
+        height: 250px;
+    }
+
+    .recipe-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .nutrition-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

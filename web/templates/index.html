@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}All Recipes - Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Recipe Collection</h1>
+    <p class="subtitle">{{ recipes|length }} recipes available</p>
+
+    <div class="recipe-grid">
+        {% for recipe in recipes %}
+        <a href="/recipe/{{ recipe.id }}" class="recipe-card">
+            {% if recipe.image_url %}
+            <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" class="recipe-image">
+            {% else %}
+            <div class="recipe-image-placeholder">📸</div>
+            {% endif %}
+
+            <div class="recipe-info">
+                <h3>{{ recipe.name }}</h3>
+
+                {% if recipe.description %}
+                <p class="description">{{ recipe.description[:100] }}{% if recipe.description|length > 100 %}...{% endif %}</p>
+                {% endif %}
+
+                <div class="recipe-meta">
+                    {% if recipe.total_time %}
+                    <span class="meta-item time-badge">⏱️ {{ recipe.total_time }} min</span>
+                    {% endif %}
+
+                    {% if recipe.servings %}
+                    <span class="meta-item servings-badge">{{ recipe.servings }}/{{ recipe.servings }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Recipe Tags (HelloFresh style) -->
+                <div class="recipe-tags">
+                    {% if recipe.difficulty %}
+                    <span class="recipe-tag difficulty-tag">{{ recipe.difficulty }}</span>
+                    {% endif %}
+
+                    {% if recipe.total_time and recipe.total_time <= 30 %}
+                    <span class="recipe-tag quick-tag">Quick</span>
+                    {% endif %}
+
+                    {% if recipe.prep_time and recipe.prep_time <= 10 %}
+                    <span class="recipe-tag prep-tag">Easy Prep</span>
+                    {% endif %}
+
+                    {% if recipe.protein and recipe.protein >= 30 %}
+                    <span class="recipe-tag protein-tag">High Protein</span>
+                    {% endif %}
+
+                    {% for tag in recipe.tags[:3] %}
+                    <span class="recipe-tag cuisine-tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

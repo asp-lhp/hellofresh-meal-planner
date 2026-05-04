@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Pending Deletions - Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>🗑️ Pending Deletions</h1>
+    <p class="subtitle">Recipes marked for deletion</p>
+
+    {% if recipes %}
+    <div class="pending-deletions-list">
+        <table class="deletions-table">
+            <thead>
+                <tr>
+                    <th>Recipe Name</th>
+                    <th>Marked At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recipe in recipes %}
+                <tr>
+                    <td><strong>{{ recipe.name }}</strong></td>
+                    <td>{{ recipe.marked_at }}</td>
+                    <td class="actions">
+                        <form method="POST" action="/admin/restore/{{ recipe.id }}" style="display: inline;">
+                            <button type="submit" class="btn-restore">↶ Restore</button>
+                        </form>
+                        <form method="POST" action="/admin/delete-permanent/{{ recipe.id }}" style="display: inline;" onsubmit="return confirm('Permanently delete this recipe? This cannot be undone!');">
+                            <button type="submit" class="btn-delete-permanent">✗ Delete Permanently</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No recipes pending deletion.</p>
+    </div>
+    {% endif %}
+
+    <div class="admin-nav-buttons">
+        <a href="/admin/import-recipe" class="btn btn-import">📥 Import Recipe</a>
+        <a href="/admin/ai-tagging" class="btn btn-ai">🤖 AI Tagging</a>
+        <a href="/" class="btn">← Back to Recipes</a>
+    </div>
+
+    <style>
+    .admin-nav-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        justify-content: center;
+    }
+
+    .btn-import {
+        background: #2196F3;
+        color: white;
+    }
+
+    .btn-import:hover {
+        background: #1976D2;
+        color: white;
+    }
+
+    .btn-ai {
+        background: #91C13E;
+        color: white;
+    }
+
+    .btn-ai:hover {
+        background: #7DAD2E;
+        color: white;
+    }
+    </style>
+</div>
+
+<style>
+.deletions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 30px 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.deletions-table thead {
+    background: #333;
+    color: white;
+}
+
+.deletions-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.deletions-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.deletions-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+.deletions-table .actions {
+    white-space: nowrap;
+}
+
+.btn-restore {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.btn-restore:hover {
+    background: #45a049;
+}
+
+.btn-delete-permanent {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-delete-permanent:hover {
+    background: #da190b;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    font-size: 18px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+</style>
+{% endblock %}

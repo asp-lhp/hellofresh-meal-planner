@@ -1,0 +1,152 @@
+[
+  {
+    "ingredient_name": "Barramundi",
+    "quantity_needed": "2 fillets (12-16 oz total)",
+    "package_to_buy": "2 fresh barramundi fillets (6-8 oz each)",
+    "notes": "Look in fresh fish section or frozen seafood"
+  },
+  {
+    "ingredient_name": "Carrots",
+    "quantity_needed": "3-4 medium carrots (about 1 lb)",
+    "package_to_buy": "1 bag (2 lb) fresh carrots",
+    "notes": "Used in multiple recipes, 2 lb bag is most economical"
+  },
+  {
+    "ingredient_name": "Chili Flakes",
+    "quantity_needed": "1-2 teaspoons",
+    "package_to_buy": "1 jar crushed red pepper (1.5-2 oz)",
+    "notes": "Pantry staple - small jar is fine"
+  },
+  {
+    "ingredient_name": "Cilantro",
+    "quantity_needed": "1 bunch (about 1 cup chopped)",
+    "package_to_buy": "1 fresh bunch cilantro",
+    "notes": "Usually comes in bunches, one is enough"
+  },
+  {
+    "ingredient_name": "Cumin",
+    "quantity_needed": "1-2 teaspoons",
+    "package_to_buy": "1 jar ground cumin (2-2.5 oz)",
+    "notes": "Pantry staple - standard spice jar"
+  },
+  {
+    "ingredient_name": "Garlic",
+    "quantity_needed": "6-9 cloves total",
+    "package_to_buy": "2 bulbs fresh garlic",
+    "notes": "Used in 3 recipes, buy 2 bulbs to be safe"
+  },
+  {
+    "ingredient_name": "Garlic Powder",
+    "quantity_needed": "1 teaspoon",
+    "package_to_buy": "1 jar garlic powder (2.5-3 oz)",
+    "notes": "Pantry staple if you don't have it"
+  },
+  {
+    "ingredient_name": "Ginger",
+    "quantity_needed": "2-3 inches fresh ginger root",
+    "package_to_buy": "1 piece fresh ginger root (3-4 inches)",
+    "notes": "Buy a hand-sized piece"
+  },
+  {
+    "ingredient_name": "Israeli Couscous",
+    "quantity_needed": "1.5 cups dry",
+    "package_to_buy": "1 box pearl couscous (12-16 oz)",
+    "notes": "Also called pearl couscous"
+  },
+  {
+    "ingredient_name": "Lime",
+    "quantity_needed": "4 limes total",
+    "package_to_buy": "1 bag fresh limes (4-6 count)",
+    "notes": "Used in 2 recipes, buy a small bag"
+  },
+  {
+    "ingredient_name": "Mini Cucumber",
+    "quantity_needed": "4 mini cucumbers",
+    "package_to_buy": "1 package Persian cucumbers (6 count)",
+    "notes": "Also called Persian cucumbers"
+  },
+  {
+    "ingredient_name": "Onion",
+    "quantity_needed": "1 medium yellow onion",
+    "package_to_buy": "1-2 medium yellow onions",
+    "notes": "Buy one or two - they keep well"
+  },
+  {
+    "ingredient_name": "Radishes",
+    "quantity_needed": "1 bunch (about 8-10 radishes)",
+    "package_to_buy": "1 bunch fresh radishes",
+    "notes": "Usually sold in bunches"
+  },
+  {
+    "ingredient_name": "Ranch Steak",
+    "quantity_needed": "12-16 oz (2 steaks)",
+    "package_to_buy": "2 ranch steaks (6-8 oz each)",
+    "notes": "Fresh beef section - can substitute with sirloin"
+  },
+  {
+    "ingredient_name": "Red Cabbage and Carrot Mix",
+    "quantity_needed": "2 cups shredded",
+    "package_to_buy": "1 bag coleslaw mix (14-16 oz)",
+    "notes": "Look for red cabbage slaw mix in produce"
+  },
+  {
+    "ingredient_name": "Rice",
+    "quantity_needed": "3 cups cooked (1 cup dry)",
+    "package_to_buy": "1 bag white rice (2 lb or 5 lb)",
+    "notes": "Jasmine or long grain white rice"
+  },
+  {
+    "ingredient_name": "Rice Wine Vinegar",
+    "quantity_needed": "3-4 tablespoons",
+    "package_to_buy": "1 bottle rice vinegar (12 oz)",
+    "notes": "Asian section - keeps for months"
+  },
+  {
+    "ingredient_name": "Scallions",
+    "quantity_needed": "4-6 scallions",
+    "package_to_buy": "2 bunches green onions/scallions",
+    "notes": "Used in 2 recipes"
+  },
+  {
+    "ingredient_name": "Sesame Seeds",
+    "quantity_needed": "2-3 tablespoons",
+    "package_to_buy": "1 jar sesame seeds (2-3 oz)",
+    "notes": "Toasted or plain, Asian section"
+  },
+  {
+    "ingredient_name": "Spicy Mayo",
+    "quantity_needed": "1/4 cup",
+    "package_to_buy": "1 bottle spicy mayo or Kewpie mayo (12 oz)",
+    "notes": "Asian section - or make your own with mayo + sriracha"
+  },
+  {
+    "ingredient_name": "Sugar",
+    "quantity_needed": "3-4 tablespoons",
+    "package_to_buy": "1 bag granulated sugar (2 lb or 4 lb)",
+    "notes": "Pantry staple - buy size based on what you have"
+  },
+  {
+    "ingredient_name": "Sweet Soy Glaze",
+    "quantity_needed": "1/2 cup",
+    "package_to_buy": "1 bottle teriyaki sauce or soy glaze (10-15 oz)",
+    "notes": "Kikkoman teriyaki works great"
+  },
+  {
+    "ingredient_name": "Tilapia",
+    "quantity_needed": "2 fillets (12-16 oz total)",
+    "package_to_buy": "1 package frozen tilapia fillets (2 lb)",
+    "notes": "Frozen is fine and more economical"
+  },
+  {
+    "ingredient_name": "Veggie Stock Concentrate",
+    "quantity_needed": "1-2 teaspoons",
+    "package_to_buy": "1 jar Better Than Bouillon Vegetable (8 oz)",
+    "notes": "Keeps for months in fridge"
+  },
+  {
+    "ingredient_name": "Zucchini",
+    "quantity_needed": "1-2 medium zucchini",
+    "package_to_buy": "2 fresh zucchini",
+    "notes": "Medium size, about 6-8 inches long each"
+  }
+]
