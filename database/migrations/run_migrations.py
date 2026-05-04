@@ -206,6 +206,44 @@ def migration_005_grocery_api_credentials(conn):
     return changes_made
 
 
+def migration_006_add_invite_codes(conn):
+    """Add invite_codes table for invite-only access control."""
+    print("Migration 006: Adding invite codes for access control...")
+
+    existing_indexes = get_existing_indexes(conn)
+    changes_made = False
+
+    # Create invite_codes table
+    if not table_exists(conn, 'invite_codes'):
+        conn.execute("""
+            CREATE TABLE invite_codes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                code TEXT UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                used_by_email TEXT,
+                used_at TIMESTAMP,
+                revoked_at TIMESTAMP
+            )
+        """)
+        print("  - Created table: invite_codes")
+        changes_made = True
+    else:
+        print("  - Table already exists: invite_codes")
+
+    # Create indexes
+    if 'idx_invite_codes_code' not in existing_indexes:
+        conn.execute("CREATE INDEX idx_invite_codes_code ON invite_codes(code)")
+        print("  - Added index: idx_invite_codes_code")
+        changes_made = True
+
+    if 'idx_invite_codes_used_at' not in existing_indexes:
+        conn.execute("CREATE INDEX idx_invite_codes_used_at ON invite_codes(used_at)")
+        print("  - Added index: idx_invite_codes_used_at")
+        changes_made = True
+
+    return changes_made
+
+
 def run_migrations(db_path):
     """Run all pending migrations."""
     print(f"Running migrations on: {db_path}")
@@ -219,6 +257,7 @@ def run_migrations(db_path):
             ("001", migration_001_soft_delete),
             ("004", migration_004_add_users),
             ("005", migration_005_grocery_api_credentials),
+            ("006", migration_006_add_invite_codes),
         ]
 
         total_changes = 0

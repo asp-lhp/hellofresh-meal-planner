@@ -4,7 +4,7 @@ Flask Web App for Meal Planner
 Displays recipes with HelloFresh-style cards, print-friendly
 """
 
-from flask import Flask, render_template, abort, redirect, url_for, request, jsonify
+from flask import Flask, render_template, abort, redirect, url_for, request, jsonify, session
 from werkzeug.middleware.proxy_fix import ProxyFix
 import sqlite3
 from pathlib import Path
@@ -12,8 +12,10 @@ import httpx
 import os
 import sys
 import logging
+import secrets
 from functools import wraps
 from time import sleep
+from datetime import datetime
 
 # Add scraper directory to path for tag imports
 sys.path.append(str(Path(__file__).parent.parent / "scraper"))
@@ -49,6 +51,9 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 if not ANTHROPIC_API_KEY:
     print("WARNING: ANTHROPIC_API_KEY not set. AI features will be disabled.")
 
+# Admin email for access control
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "andresprague@gmail.com")
+
 # API request configuration
 API_TIMEOUT = 30.0  # seconds
 API_MAX_RETRIES = 3
@@ -62,6 +67,18 @@ class APIError(Exception):
         self.status_code = status_code
         self.details = details
         super().__init__(self.message)
+
+
+def admin_required(f):
+    """Decorator that requires the current user to be an admin."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        if current_user.email != ADMIN_EMAIL:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 def api_request(method, endpoint, json=None, retries=API_MAX_RETRIES):
@@ -1214,6 +1231,88 @@ def save_settings():
     except Exception as e:
         logger.error(f"Error saving settings: {e}")
         return redirect(url_for('settings_page', error='Failed to save settings. Please try again.'))
+
+
+# ============================================================================
+# INVITE-ONLY ACCESS ROUTES
+# ============================================================================
+
+@app.route('/invite/<code>')
+def invite_landing(code):
+    """Validate invite code and redirect to OAuth login."""
+    conn = get_db()
+    invite = conn.execute(
+        "SELECT id, code FROM invite_codes WHERE code = ? AND used_at IS NULL AND revoked_at IS NULL",
+        (code,)
+    ).fetchone()
+    conn.close()
+
+    if not invite:
+        return render_template('invite_invalid.html'), 400
+
+    # Store code in session and redirect to login
+    session['invite_code'] = code
+    return redirect(url_for('auth.login'))
+
+
+@app.route('/access-denied')
+def access_denied():
+    """Show invite-only access denied page."""
+    return render_template('access_denied.html'), 403
+
+
+@app.route('/admin/invites')
+@admin_required
+def admin_invites():
+    """Admin page to manage invite codes."""
+    conn = get_db()
+    invites = conn.execute("""
+        SELECT id, code, created_at, used_by_email, used_at, revoked_at
+        FROM invite_codes
+        ORDER BY created_at DESC
+    """).fetchall()
+    conn.close()
+
+    return render_template('admin_invites.html', invites=invites)
+
+
+@app.route('/admin/invites/generate', methods=['POST'])
+@admin_required
+def generate_invite():
+    """Generate a new invite code."""
+    code = secrets.token_urlsafe(18)  # 24-char URL-safe token
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO invite_codes (code, created_at) VALUES (?, ?)",
+        (code, datetime.utcnow())
+    )
+    conn.commit()
+    conn.close()
+
+    # Build full URL
+    invite_url = url_for('invite_landing', code=code, _external=True)
+
+    return jsonify({
+        'success': True,
+        'code': code,
+        'url': invite_url
+    })
+
+
+@app.route('/admin/invites/revoke/<int:invite_id>', methods=['POST'])
+@admin_required
+def revoke_invite(invite_id):
+    """Revoke an unused invite code."""
+    conn = get_db()
+    conn.execute(
+        "UPDATE invite_codes SET revoked_at = ? WHERE id = ? AND used_at IS NULL",
+        (datetime.utcnow(), invite_id)
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('admin_invites'))
 
 
 if __name__ == '__main__':

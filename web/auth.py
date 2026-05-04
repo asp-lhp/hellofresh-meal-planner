@@ -55,6 +55,69 @@ class User(UserMixin):
         return None
 
     @staticmethod
+    def exists_by_google_id(google_id):
+        """Check if a user exists by Google ID."""
+        from app import get_db
+        conn = get_db()
+        cursor = conn.execute(
+            "SELECT 1 FROM users WHERE google_id = ?",
+            (google_id,)
+        )
+        return cursor.fetchone() is not None
+
+    @staticmethod
+    def get_by_google_id(google_id):
+        """Get existing user by Google ID, or None if not found."""
+        from app import get_db
+        conn = get_db()
+        cursor = conn.execute(
+            "SELECT id, google_id, email, name, avatar_url FROM users WHERE google_id = ?",
+            (google_id,)
+        )
+        row = cursor.fetchone()
+        if row:
+            return User(
+                id=row[0],
+                google_id=row[1],
+                email=row[2],
+                name=row[3],
+                avatar_url=row[4]
+            )
+        return None
+
+    @staticmethod
+    def create(google_id, email, name, avatar_url):
+        """Create a new user."""
+        from app import get_db
+        conn = get_db()
+        cursor = conn.execute(
+            """INSERT INTO users (google_id, email, name, avatar_url, created_at, last_login)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (google_id, email, name, avatar_url, datetime.utcnow(), datetime.utcnow())
+        )
+        conn.commit()
+        return User(
+            id=cursor.lastrowid,
+            google_id=google_id,
+            email=email,
+            name=name,
+            avatar_url=avatar_url
+        )
+
+    @staticmethod
+    def update_login(user_id, name, avatar_url, email):
+        """Update user's last login and profile info."""
+        from app import get_db
+        conn = get_db()
+        conn.execute(
+            """UPDATE users
+               SET last_login = ?, name = ?, avatar_url = ?, email = ?
+               WHERE id = ?""",
+            (datetime.utcnow(), name, avatar_url, email, user_id)
+        )
+        conn.commit()
+
+    @staticmethod
     def get_or_create(google_id, email, name, avatar_url):
         """Get existing user or create new one."""
         from app import get_db
@@ -164,16 +227,68 @@ def google_callback():
             # Fetch user info from Google
             user_info = oauth.google.get('https://openidconnect.googleapis.com/v1/userinfo').json()
 
-        # Get or create user in database
-        user = User.get_or_create(
-            google_id=user_info['sub'],
-            email=user_info['email'],
-            name=user_info.get('name', ''),
-            avatar_url=user_info.get('picture', '')
+        google_id = user_info['sub']
+        email = user_info['email']
+        name = user_info.get('name', '')
+        avatar_url = user_info.get('picture', '')
+
+        # Check if user already exists (returning user)
+        existing_user = User.get_by_google_id(google_id)
+
+        if existing_user:
+            # Returning user - update login info and let them in
+            User.update_login(existing_user.id, name, avatar_url, email)
+            existing_user.name = name
+            existing_user.avatar_url = avatar_url
+            existing_user.email = email
+            login_user(existing_user)
+            next_url = session.pop('next_url', url_for('index'))
+            session.pop('invite_code', None)  # Clear any invite code
+            return redirect(next_url)
+
+        # New user - check for valid invite code
+        invite_code = session.get('invite_code')
+
+        if not invite_code:
+            # No invite code - deny access
+            current_app.logger.warning(f"Access denied for new user {email} - no invite code")
+            return redirect(url_for('access_denied'))
+
+        # Validate invite code
+        from app import get_db
+        conn = get_db()
+        code_row = conn.execute(
+            "SELECT id, code FROM invite_codes WHERE code = ? AND used_at IS NULL AND revoked_at IS NULL",
+            (invite_code,)
+        ).fetchone()
+
+        if not code_row:
+            # Invalid or already used code
+            current_app.logger.warning(f"Access denied for {email} - invalid invite code")
+            session.pop('invite_code', None)
+            return redirect(url_for('access_denied'))
+
+        # Valid invite - create user and mark code as used
+        user = User.create(
+            google_id=google_id,
+            email=email,
+            name=name,
+            avatar_url=avatar_url
         )
+
+        # Mark invite code as used
+        conn.execute(
+            "UPDATE invite_codes SET used_by_email = ?, used_at = ? WHERE id = ?",
+            (email, datetime.utcnow(), code_row[0])
+        )
+        conn.commit()
+
+        # Clear invite code from session
+        session.pop('invite_code', None)
 
         # Log the user in
         login_user(user)
+        current_app.logger.info(f"New user {email} created via invite code")
 
         # Redirect to original page or home
         next_url = session.pop('next_url', url_for('index'))
@@ -181,6 +296,7 @@ def google_callback():
 
     except Exception as e:
         current_app.logger.error(f"OAuth error: {e}")
+        session.pop('invite_code', None)
         return redirect(url_for('index'))
 
 
