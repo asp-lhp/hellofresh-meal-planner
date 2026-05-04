@@ -5,6 +5,7 @@ Displays recipes with HelloFresh-style cards, print-friendly
 """
 
 from flask import Flask, render_template, abort, redirect, url_for, request, jsonify
+from werkzeug.middleware.proxy_fix import ProxyFix
 import sqlite3
 from pathlib import Path
 import httpx
@@ -18,6 +19,7 @@ from time import sleep
 sys.path.append(str(Path(__file__).parent.parent / "scraper"))
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 # Import auth early - needed for @login_required decorator
 from auth import init_auth, login_required
@@ -247,12 +249,61 @@ def recipe_detail(recipe_id):
 
     conn.close()
 
+    # Fetch the user's meal plans for the "Add to Meal Plan" inline select
+    meal_plans = []
+    if current_user.is_authenticated:
+        try:
+            mp_response = api_get(f"meal-plans?userId={current_user.id}")
+            if mp_response.status_code == 200:
+                meal_plans = mp_response.json()
+        except APIError:
+            pass
+
     return render_template('recipe.html',
                          recipe=recipe,
                          ingredients=ingredients,
                          instructions=instructions,
                          tags=tags,
-                         allergens=allergens)
+                         allergens=allergens,
+                         meal_plans=meal_plans)
+
+
+@app.route('/recipe/<int:recipe_id>/add-to-meal-plan', methods=['POST'])
+@login_required
+def add_recipe_to_meal_plan(recipe_id):
+    """Add a recipe to an existing meal plan (no modal — direct one-click action)."""
+    data = request.json or {}
+    meal_plan_id = data.get('meal_plan_id')
+
+    if not meal_plan_id:
+        return jsonify({'error': 'meal_plan_id is required'}), 400
+
+    try:
+        # Verify the meal plan exists and belongs to this user
+        plan_resp = api_get(f"meal-plans/{meal_plan_id}")
+        if plan_resp.status_code == 404:
+            return jsonify({'error': 'Meal plan not found'}), 404
+
+        plan = plan_resp.json()
+        if plan.get('userId') and plan['userId'] != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        # Add the recipe to the meal plan (default to start date + dinner meal type)
+        add_resp = api_post(f"meal-plans/{meal_plan_id}/recipes", json={
+            "recipeId": recipe_id,
+            "servings": 2,
+            "mealDate": plan.get('startDate'),
+            "mealType": "dinner"
+        })
+
+        if add_resp.status_code in [200, 201]:
+            return jsonify({'success': True, 'message': f'Added to "{plan["name"]}"'})
+        else:
+            logger.error(f"Failed to add recipe {recipe_id} to meal plan {meal_plan_id}: {add_resp.status_code}")
+            return jsonify({'error': 'Failed to add recipe to meal plan'}), 500
+
+    except APIError as e:
+        return jsonify({'error': e.message}), e.status_code
 
 
 @app.route('/search')
